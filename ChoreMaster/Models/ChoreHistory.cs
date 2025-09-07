@@ -6,13 +6,15 @@ public class ChoreHistory
     public int Id { get; set; }
     public User? User { get; set; }
     public DateTime DateTime { get; set; }
-    public string? Message { get; set; }
+    public string Message { get; set; }
 
     public ChoreHistory()
     {
+        DateTime = DateTime.UtcNow;
+        Message = string.Empty;
     }
 
-    public ChoreHistory(User user, string? message = null)
+    public ChoreHistory(User user, string message)
     {
         User = user;
         DateTime = DateTime.UtcNow;

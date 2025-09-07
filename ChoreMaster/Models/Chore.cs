@@ -36,3 +36,10 @@ public class ChoreDto
     public int? AssignedToUserID { get; set; }
     public required bool IsReassignedable { get; set; }
 }
+
+public class CompleteChoreRequestDto
+{
+    public required int ChoreId { get; set; }
+    public required int FromUserId { get; set; }
+    public required int ToUserId { get; set; }
+}

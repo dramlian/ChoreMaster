@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ChoreMaster.Data;
 
 namespace ChoreMaster.Controllers;
 
@@ -8,19 +6,38 @@ namespace ChoreMaster.Controllers;
 [Route("api/chores")]
 public class ChoreManagementController : ControllerBase
 {
-    private readonly ILogger<ChoreManagementController> _logger;
-    private readonly ChoreMasterDbContext _context;
+    private readonly IChoreManagementService _choreManagementService;
 
-    public ChoreManagementController(ILogger<ChoreManagementController> logger, ChoreMasterDbContext context)
+    public ChoreManagementController(IChoreManagementService choreManagementService)
     {
-        _logger = logger;
-        _context = context;
+        _choreManagementService = choreManagementService;
     }
 
     [HttpGet]
     [Route("all")]
-    public async Task<IActionResult> GetChores()
+    public async Task<ActionResult<IEnumerable<Chore>>> GetChores()
     {
-        return Ok(await _context.Chores.ToListAsync());
+        return Ok(await _choreManagementService.GetAllChoresAsync());
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult<Chore>> GetChoreById(int id)
+    {
+        return Ok(await _choreManagementService.GetChoreByIdAsync(id));
+    }
+
+    [HttpPost]
+    [Route("create")]
+    public async Task<ActionResult<Chore>> CreateChore(ChoreDto choreDto)
+    {
+        return await _choreManagementService.CreateChoreAsync(choreDto);
+    }
+
+    [HttpPost]
+    [Route("{choreId}/complete")]
+    public async Task<ActionResult> CompleteChore([FromBody] CompleteChoreRequestDto request)
+    {
+        return Ok(await _choreManagementService.CompleteChoreAsync(request.ChoreId, request.FromUserId, request.ToUserId));
     }
 }
