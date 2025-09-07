@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ChoreMaster.Data;
 
 namespace ChoreMaster.Controllers;
 
@@ -8,30 +6,31 @@ namespace ChoreMaster.Controllers;
 [Route("api/users")]
 public class UserManagementController : ControllerBase
 {
-    private readonly ChoreMasterDbContext _context;
+    private readonly UserManagementService _userManagementService;
 
-    public UserManagementController(ChoreMasterDbContext context)
+    public UserManagementController(UserManagementService userManagementService)
     {
-        _context = context;
+        _userManagementService = userManagementService;
     }
 
     [HttpGet]
     [Route("all")]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return Ok(await _context.Users.ToListAsync());
+        return Ok(await _userManagementService.GetAllUsersAsync());
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult<User>> GetUserById(int id)
+    {
+        return Ok(await _userManagementService.GetUserByIdAsync(id));
     }
 
     [HttpPost]
     [Route("create")]
-    public async Task<ActionResult<UserDto>> CreateUser(UserDto userDto)
+    public async Task<ActionResult<User>> CreateUser(UserDto userDto)
     {
-
-        var user = new User(userDto.Username, userDto.Email);
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(CreateUser), new { id = user.Id }, userDto);
+        return Ok(await _userManagementService.CreateUserAsync(userDto));
     }
 }
