@@ -11,12 +11,13 @@ public class Chore
     public int Threshold { get; set; }
     public User? AssignedTo { get; set; }
     public bool IsReassignedable { get; set; }
-    public ICollection<ChoreHistory>? History { get; set; }
+    public ICollection<ChoreHistory> History { get; set; }
     public TimeSpan TimeLeft => LastCompleted.AddDays(Threshold) - DateTime.Now;
 
     public Chore()
     {
         Name = string.Empty;
+        History = new List<ChoreHistory>();
     }
 
     public Chore(string name, int threshold, User userAssigned, bool isReassignedable)
@@ -26,6 +27,7 @@ public class Chore
         AssignedTo = userAssigned;
         IsReassignedable = isReassignedable;
         LastCompleted = DateTime.UtcNow;
+        History = new List<ChoreHistory>();
     }
 }
 

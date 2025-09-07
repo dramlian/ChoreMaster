@@ -3,6 +3,7 @@ using System;
 using ChoreMaster.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChoreMaster.Migrations
 {
     [DbContext(typeof(ChoreMasterDbContext))]
-    partial class ChoreMasterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250907181456_ChoreHistory")]
+    partial class ChoreHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,9 +122,11 @@ namespace ChoreMaster.Migrations
 
             modelBuilder.Entity("ChoreHistory", b =>
                 {
-                    b.HasOne("Chore", null)
+                    b.HasOne("Chore", "Chore")
                         .WithMany("History")
                         .HasForeignKey("ChoreId");
+
+                    b.Navigation("Chore");
                 });
 
             modelBuilder.Entity("Chore", b =>

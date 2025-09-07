@@ -23,7 +23,7 @@ public class ChoreManagementService : IChoreManagementService
     public async Task<Chore?> GetChoreByIdAsync(int id)
     {
         _logger.LogInformation("Fetching chore with ID {ChoreId} from the database.", id);
-        var chore = await _context.Chores.FindAsync(id);
+        var chore = await _context.Chores.Include(x => x.AssignedTo).Include(x => x.History).FirstOrDefaultAsync(x => x.Id.Equals(id));
 
         if (chore is null)
         {
@@ -83,9 +83,9 @@ public class ChoreManagementService : IChoreManagementService
         chore.AssignedTo = toUser;
         chore.LastCompleted = DateTime.UtcNow;
 
-        var choreHistory = new ChoreHistory(fromUser, $"Chore '{chore.Name}' completed by {fromUser.Username} and reassigned to {toUser.Username}.");
+        var choreHistory = new ChoreHistory($"Chore '{chore.Name}' completed by {fromUser.Username} and reassigned to {toUser.Username}.");
+        chore.History.Add(choreHistory);
 
-        _context.ChoreHistories.Add(choreHistory);
         await _context.SaveChangesAsync();
         return choreHistory.Message;
     }

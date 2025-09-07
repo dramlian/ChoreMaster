@@ -4,7 +4,6 @@ public class ChoreHistory
 {
     [Key]
     public int Id { get; set; }
-    public User? User { get; set; }
     public DateTime DateTime { get; set; }
     public string Message { get; set; }
 
@@ -14,9 +13,8 @@ public class ChoreHistory
         Message = string.Empty;
     }
 
-    public ChoreHistory(User user, string message)
+    public ChoreHistory(string message)
     {
-        User = user;
         DateTime = DateTime.UtcNow;
         Message = message;
     }
