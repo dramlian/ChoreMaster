@@ -58,37 +58,36 @@ public class ChoreManagementService : IChoreManagementService
         }
     }
 
-    //add logic for a task that can not be reassigned
-    public async Task<string> CompleteChoreAsync(int choreId, int fromUserId, int toUserId)
+    public async Task<string> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId)
     {
-        var fromUser = await _userManagementService.GetUserByIdAsync(fromUserId);
-        var toUser = await _userManagementService.GetUserByIdAsync(toUserId);
-        var chore = await _context.Chores.FindAsync(choreId);
+        var fromUser = await _userManagementService.GetUserByIdAsync(fromUserId)
+                       ?? throw new ArgumentException("User not found.");
 
-        if (fromUser is null || toUser is null || chore is null)
-        {
-            throw new ArgumentException("User or chore not found.");
-        }
-
-        if (chore is null)
-        {
-            throw new ArgumentException("Chore not found.");
-        }
+        var chore = await GetChoreByIdAsync(choreId)
+                    ?? throw new ArgumentException("Chore not found.");
 
         if (chore.AssignedTo?.Id != fromUserId)
+            throw new ArgumentException("Chore is not assigned to this user.");
+
+        User? toUser = null;
+        if (chore.IsReassignedable && toUserId.HasValue)
         {
-            throw new ArgumentException("Chore is not assigned to the user completing it.");
+            toUser = await _userManagementService.GetUserByIdAsync(toUserId.Value)
+                    ?? throw new ArgumentException("Reassigned user not found.");
+            chore.AssignedTo = toUser;
         }
 
-        chore.AssignedTo = toUser;
         chore.LastCompleted = DateTime.UtcNow;
 
-        var choreHistory = new ChoreHistory($"Chore '{chore.Name}' completed by {fromUser.Username} and reassigned to {toUser.Username}.");
-        chore.History.Add(choreHistory);
+        var message = $"Chore '{chore.Name}' completed by {fromUser.Username}" +
+                      (toUser is not null ? $" and reassigned to {toUser.Username}." : ".");
+
+        chore.History.Add(new ChoreHistory(message));
 
         await _context.SaveChangesAsync();
-        return choreHistory.Message;
+        return message;
     }
+
 
     public async Task<int> DeleteChoreAsync(int id)
     {

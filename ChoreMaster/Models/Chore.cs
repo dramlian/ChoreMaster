@@ -43,5 +43,5 @@ public class CompleteChoreRequestDto
 {
     public required int ChoreId { get; set; }
     public required int FromUserId { get; set; }
-    public required int ToUserId { get; set; }
+    public int? ToUserId { get; set; }
 }
