@@ -21,7 +21,12 @@ public class UserManagementService : IUserManagementService
     public async Task<User?> GetUserByIdAsync(int id)
     {
         _logger.LogInformation("Fetching user with ID {UserId} from the database.", id);
-        return await _context.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
+        if (user is null)
+        {
+            throw new ArgumentException("User not found.");
+        }
+        return user;
     }
 
     public async Task<User> CreateUserAsync(UserDto userDto)

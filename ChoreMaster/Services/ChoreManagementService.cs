@@ -23,13 +23,13 @@ public class ChoreManagementService : IChoreManagementService
     public async Task<Chore?> GetChoreByIdAsync(int id)
     {
         _logger.LogInformation("Fetching chore with ID {ChoreId} from the database.", id);
-        var user = await _context.Chores.FindAsync(id);
+        var chore = await _context.Chores.FindAsync(id);
 
-        if (user is null)
+        if (chore is null)
         {
             throw new ArgumentException("Chore not found.");
         }
-        return user;
+        return chore;
     }
 
     public async Task<Chore> CreateChoreAsync(ChoreDto choreDto)
@@ -76,7 +76,7 @@ public class ChoreManagementService : IChoreManagementService
 
         if (fromUser.ActiveChores.Contains(chore) == false)
         {
-            throw new InvalidOperationException("The user does not have this chore assigned.");
+            throw new ArgumentException("The user does not have this chore assigned.");
         }
 
         fromUser.ActiveChores.Remove(chore);
