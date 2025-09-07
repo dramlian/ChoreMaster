@@ -35,7 +35,7 @@ public class ChoreManagementController : ControllerBase
     }
 
     [HttpPut]
-    [Route("{choreId}/complete")]
+    [Route("complete")]
     public async Task<ActionResult> CompleteChore([FromBody] CompleteChoreRequestDto request)
     {
         return Ok(await _choreManagementService.CompleteChoreAsync(request.ChoreId, request.FromUserId, request.ToUserId));
