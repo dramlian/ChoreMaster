@@ -6,9 +6,9 @@ namespace ChoreMaster.Controllers;
 [Route("api/users")]
 public class UserManagementController : ControllerBase
 {
-    private readonly UserManagementService _userManagementService;
+    private readonly IUserManagementService _userManagementService;
 
-    public UserManagementController(UserManagementService userManagementService)
+    public UserManagementController(IUserManagementService userManagementService)
     {
         _userManagementService = userManagementService;
     }

@@ -9,8 +9,7 @@ builder.Services.AddDbContext<ChoreMasterDbContext>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
-builder.Services.AddScoped<UserManagementService>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 var app = builder.Build();
 

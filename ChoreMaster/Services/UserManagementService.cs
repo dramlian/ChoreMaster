@@ -1,7 +1,7 @@
 using ChoreMaster.Data;
 using Microsoft.EntityFrameworkCore;
 
-public class UserManagementService
+public class UserManagementService : IUserManagementService
 {
     private readonly ILogger<UserManagementService> _logger;
     private readonly ChoreMasterDbContext _context;
