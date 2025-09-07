@@ -75,13 +75,13 @@ public class ChoreManagementService : IChoreManagementService
             throw new ArgumentException("Chore not found.");
         }
 
-        if (fromUser.ActiveChores.Contains(chore) == false)
+        if (chore.AssignedTo?.Id != fromUserId)
         {
-            throw new ArgumentException("The user does not have this chore assigned.");
+            throw new ArgumentException("Chore is not assigned to the user completing it.");
         }
 
-        fromUser.ActiveChores.Remove(chore);
-        toUser.ActiveChores.Add(chore);
+        chore.AssignedTo = toUser;
+        chore.LastCompleted = DateTime.UtcNow;
 
         var choreHistory = new ChoreHistory(fromUser, $"Chore '{chore.Name}' completed by {fromUser.Username} and reassigned to {toUser.Username}.");
 
