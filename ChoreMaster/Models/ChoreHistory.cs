@@ -1,13 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 public class ChoreHistory
 {
-    public required User User { get; set; }
-    public required DateTime DateTime { get; set; }
+    [Key]
+    public int Id { get; set; }
+    public User? User { get; set; }
+    public DateTime DateTime { get; set; }
     public string? Message { get; set; }
 
-    public ChoreHistory(User user, DateTime dateTime, string? message = null)
+    public ChoreHistory()
+    {
+    }
+
+    public ChoreHistory(User user, string? message = null)
     {
         User = user;
-        DateTime = dateTime;
+        DateTime = DateTime.UtcNow;
         Message = message;
     }
 }

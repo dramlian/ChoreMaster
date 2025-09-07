@@ -1,16 +1,33 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
+[Index(nameof(Email), IsUnique = true)]
 public class User
 {
-    public required string Username { get; set; }
-    public required string Email { get; set; }
+    [Key]
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string Email { get; set; }
     public DateTime CreatedAt { get; set; }
-    public IEnumerable<Chore>? ActiveChores { get; set; }
+    public ICollection<Chore>? ActiveChores { get; set; }
 
-    public User(string username, string email, DateTime createdAt)
+    public User()
+    {
+        Username = string.Empty;
+        Email = string.Empty;
+        CreatedAt = DateTime.UtcNow;
+    }
+
+    public User(string username, string email)
     {
         Username = username;
         Email = email;
-        CreatedAt = createdAt;
+        CreatedAt = DateTime.UtcNow;
     }
+}
+
+public class UserDto
+{
+    public required string Username { get; set; }
+    public required string Email { get; set; }
 }

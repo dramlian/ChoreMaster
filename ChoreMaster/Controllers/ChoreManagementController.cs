@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ChoreMaster.Data;
 
 namespace ChoreMaster.Controllers;
 
@@ -7,22 +9,18 @@ namespace ChoreMaster.Controllers;
 public class ChoreManagementController : ControllerBase
 {
     private readonly ILogger<ChoreManagementController> _logger;
+    private readonly ChoreMasterDbContext _context;
 
-    public ChoreManagementController(ILogger<ChoreManagementController> logger)
+    public ChoreManagementController(ILogger<ChoreManagementController> logger, ChoreMasterDbContext context)
     {
         _logger = logger;
+        _context = context;
     }
 
     [HttpGet]
-    public IActionResult GetChores()
+    [Route("all")]
+    public async Task<IActionResult> GetChores()
     {
-        // Placeholder for fetching chores from a data source
-        var chores = new List<object>
-        {
-            new { Name = "Take out trash", AssignedTo = "Alice", LastCompleted = DateTime.Now.AddDays(-3), Threshold = 7 },
-            new { Name = "Wash dishes", AssignedTo = "Bob", LastCompleted = DateTime.Now.AddDays(-1), Threshold = 1 }
-        };
-
-        return Ok(chores);
+        return Ok(await _context.Chores.ToListAsync());
     }
 }
