@@ -34,10 +34,17 @@ public class ChoreManagementController : ControllerBase
         return await _choreManagementService.CreateChoreAsync(choreDto);
     }
 
-    [HttpPost]
+    [HttpPut]
     [Route("{choreId}/complete")]
     public async Task<ActionResult> CompleteChore([FromBody] CompleteChoreRequestDto request)
     {
         return Ok(await _choreManagementService.CompleteChoreAsync(request.ChoreId, request.FromUserId, request.ToUserId));
+    }
+
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<ActionResult> DeleteChore(int id)
+    {
+        return Ok(await _choreManagementService.DeleteChoreAsync(id));
     }
 }

@@ -37,4 +37,17 @@ public class UserManagementService : IUserManagementService
         await _context.SaveChangesAsync();
         return user;
     }
+
+    public async Task<int> DeleteUserAsync(int id)
+    {
+        _logger.LogInformation("Deleting user with ID {UserId} from the database.", id);
+        var user = await _context.Users.FindAsync(id);
+        if (user is null)
+        {
+            throw new ArgumentException("User not found.");
+        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return id;
+    }
 }

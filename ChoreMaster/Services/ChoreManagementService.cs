@@ -58,6 +58,7 @@ public class ChoreManagementService : IChoreManagementService
         }
     }
 
+    //add logic for a task that can not be reassigned
     public async Task<string> CompleteChoreAsync(int choreId, int fromUserId, int toUserId)
     {
         var fromUser = await _userManagementService.GetUserByIdAsync(fromUserId);
@@ -87,6 +88,19 @@ public class ChoreManagementService : IChoreManagementService
         _context.ChoreHistories.Add(choreHistory);
         await _context.SaveChangesAsync();
         return choreHistory.Message;
+    }
+
+    public async Task<int> DeleteChoreAsync(int id)
+    {
+        var chore = await _context.Chores.FindAsync(id);
+        if (chore is null)
+        {
+            throw new ArgumentException("Chore not found.");
+        }
+
+        _context.Chores.Remove(chore);
+        await _context.SaveChangesAsync();
+        return id;
     }
 
 }
