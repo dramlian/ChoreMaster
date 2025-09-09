@@ -1,7 +1,8 @@
 
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';   
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ChoreDto } from '../../Models/ChoreDto';
+import type { User } from '../../Models/User';
 
 function Manage() {
     const [choreData, setChoreData] = useState<ChoreDto>({
@@ -11,12 +12,42 @@ function Manage() {
         isReassignedable: true
     });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [users, setUsers] = useState<User[]>([]);
+
+    // Fetch users when component mounts
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch('http://localhost:5272/api/users/all');
+                if (response.ok) {
+                    const userData = await response.json();
+                    setUsers(userData);
+                } else {
+                    console.error('Failed to fetch users:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+    const handleInputChange = (e: React.ChangeEvent<any>) => {
         const { name, value, type, checked } = e.target;
+        
+        let newValue;
+        if (type === 'checkbox') {
+            newValue = checked;
+        } else if (type === 'number' || name === 'assignedToUserID') {
+            newValue = parseInt(value) || 0;
+        } else {
+            newValue = value;
+        }
+        
         setChoreData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : 
-                   type === 'number' ? parseInt(value) || 0 : value
+            [name]: newValue
         }));
     };
 
@@ -92,16 +123,22 @@ function Manage() {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="assignedUserId">
-                            <Form.Label>Assigned User ID</Form.Label>
-                            <Form.Control 
-                                type="number" 
-                                placeholder="Enter user ID"
+                            <Form.Label>Assigned User</Form.Label>
+                            <Form.Select 
                                 name="assignedToUserID"
                                 value={choreData.assignedToUserID}
                                 onChange={handleInputChange}
-                                min="1"
                                 required
-                            />
+                            >
+                                <option value={0}>
+                                    Select a user
+                                </option>
+                                {users.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.username} ({user.email})
+                                    </option>
+                                ))}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="isReassignedable">
