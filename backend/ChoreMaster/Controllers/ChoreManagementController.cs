@@ -42,6 +42,13 @@ public class ChoreManagementController : ControllerBase
     }
 
     [HttpPut]
+    [Route("update/{id}")]
+    public async Task<ActionResult<Chore>> UpdateChore(int id, ChoreDto chore)
+    {
+        return Ok(await _choreManagementService.UpdateChoreAsync(id, chore));
+    }
+
+    [HttpPut]
     [Route("complete")]
     public async Task<ActionResult> CompleteChore([FromBody] CompleteChoreRequestDto request)
     {

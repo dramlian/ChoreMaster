@@ -69,6 +69,38 @@ public class ChoreManagementService : IChoreManagementService
         }
     }
 
+    public async Task<Chore?> UpdateChoreAsync(int id, ChoreDto chore)
+    {
+        _logger.LogInformation("Updating chore with ID {ChoreId}.", id);
+        var existingChore = await _context.Chores.FindAsync(id);
+        if (existingChore is null)
+        {
+            throw new ArgumentException("Chore not found.");
+        }
+
+        existingChore.Name = chore.Name;
+        existingChore.Threshold = chore.Threshold;
+        existingChore.IsReassignedable = chore.IsReassignedable;
+
+        if (chore.AssignedToUserID != existingChore.AssignedTo?.Id)
+        {
+            if (chore.AssignedToUserID is not null)
+            {
+                var user = await _userManagementService.GetUserByIdAsync(chore.AssignedToUserID.Value);
+                if (user is null)
+                {
+                    throw new ArgumentException("Assigned user not found.");
+                }
+                existingChore.AssignedTo = user;
+            }
+            else
+            {
+                existingChore.AssignedTo = null;
+            }
+        }
+        return existingChore;
+    }
+
     public async Task<string> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId)
     {
         var fromUser = await _userManagementService.GetUserByIdAsync(fromUserId)
