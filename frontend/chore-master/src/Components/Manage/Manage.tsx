@@ -1,9 +1,10 @@
 
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';   
 import { useState } from 'react';
+import type { ChoreDto } from '../../Models/ChoreDto';
 
 function Manage() {
-    const [choreData, setChoreData] = useState({
+    const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
         assignedToUserID: 0,
@@ -23,7 +24,7 @@ function Manage() {
         e.preventDefault();
         
         // Create the JSON payload
-        const payload = {
+        const payload: ChoreDto = {
             name: choreData.name,
             threshold: choreData.threshold,
             assignedToUserID: choreData.assignedToUserID,
