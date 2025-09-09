@@ -21,6 +21,13 @@ public class ChoreManagementController : ControllerBase
     }
 
     [HttpGet]
+    [Route("all/{userId}")]
+    public async Task<ActionResult<IEnumerable<Chore>>> GetChoresByUserId(int userId)
+    {
+        return Ok(await _choreManagementService.GetChoresByUserIdAsync(userId));
+    }
+
+    [HttpGet]
     [Route("{id}")]
     public async Task<ActionResult<Chore>> GetChoreById(int id)
     {

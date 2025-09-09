@@ -20,6 +20,17 @@ public class ChoreManagementService : IChoreManagementService
         return await _context.Chores.ToListAsync();
     }
 
+    public async Task<IEnumerable<Chore>> GetChoresByUserIdAsync(int userId)
+    {
+        _logger.LogInformation("Fetching chores for user with ID {UserId} from the database.", userId);
+        var user = await _userManagementService.GetUserByIdAsync(userId);
+        if (user is null)
+        {
+            throw new ArgumentException("User not found.");
+        }
+        return await _context.Chores.Where(x => x.AssignedTo != null && x.AssignedTo.Id == userId).ToListAsync();
+    }
+
     public async Task<Chore?> GetChoreByIdAsync(int id)
     {
         _logger.LogInformation("Fetching chore with ID {ChoreId} from the database.", id);
