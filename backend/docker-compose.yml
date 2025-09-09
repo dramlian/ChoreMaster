@@ -11,12 +11,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - choremaster_postgres_data:/var/lib/postgresql/data
     networks:
       - choremaster-network
 
 volumes:
-  postgres_data:
+  choremaster_postgres_data:
+    name: choremaster_postgres_data
 
 networks:
   choremaster-network:
