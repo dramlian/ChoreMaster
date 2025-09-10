@@ -10,7 +10,6 @@ const Header = () => {
           <Navbar.Brand>ChoreMaster</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/chores">ChoreList</Nav.Link>
-            <Nav.Link as={Link} to="/manage">Manage Chores</Nav.Link>
           </Nav>
            <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
