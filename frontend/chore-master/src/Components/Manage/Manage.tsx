@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import type { ChoreDto } from '../../Models/ChoreDto';
 import type { User } from '../../Models/User';
 
-function Manage() {
+interface ManageProps {
+    onChoreCreated?: () => void;
+}
+
+function Manage({ onChoreCreated }: ManageProps) {
     const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
@@ -83,6 +87,10 @@ function Manage() {
                     assignedToUserID: 0,
                     isReassignedable: true
                 });
+                // Call the callback if provided
+                if (onChoreCreated) {
+                    onChoreCreated();
+                }
             } else {
                 console.error('Failed to create chore:', response.statusText);
             }

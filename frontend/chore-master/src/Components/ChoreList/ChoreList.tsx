@@ -4,9 +4,11 @@ import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import { useState, useEffect } from 'react';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
+import Manage from '../Manage/Manage';
 
 function ChoreList() {
     const [chores, setChores] = useState<ChoreResponseDto[]>([]);
@@ -14,6 +16,8 @@ function ChoreList() {
     const [selectedUserId, setSelectedUserId] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [modalClosed, setModalClosed] = useState<boolean>(false);
 
     useEffect(() => {
         // Fetch users when component mounts
@@ -64,7 +68,7 @@ function ChoreList() {
         };
 
         fetchChores();
-    }, [selectedUserId]); // Re-fetch when selectedUserId changes
+    }, [selectedUserId, modalClosed]); // Re-fetch when selectedUserId changes or modal closes
 
     const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUserId(parseInt(e.target.value) || 0);
@@ -95,6 +99,15 @@ function ChoreList() {
             console.error('Error deleting chore:', error);
             alert('Error deleting chore. Please try again.');
         }
+    };
+
+    const handleShowModal = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
     };
 
     const formatDate = (dateString: string) => {
@@ -138,6 +151,13 @@ function ChoreList() {
         <Container className="mt-4">
             <Row>
                 <Col>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Chore List</h2>
+                        <Button variant="success" onClick={handleShowModal}>
+                            Create Chore
+                        </Button>
+                    </div>
+
                     <Form.Group className="mb-3" controlId="userFilter">
                         <Form.Label>Filter by User</Form.Label>
                         <Form.Select 
@@ -191,6 +211,16 @@ function ChoreList() {
                     </Table>
                 </Col>
             </Row>
+
+            {/* Create Chore Modal */}
+            <Modal show={showModal} onHide={handleCloseModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Create New Chore</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Manage onChoreCreated={handleCloseModal} />
+                </Modal.Body>
+            </Modal>
         </Container>
     )
 }
