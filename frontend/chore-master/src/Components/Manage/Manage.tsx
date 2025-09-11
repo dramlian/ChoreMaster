@@ -119,7 +119,6 @@ function Manage({ onChoreCreated, editChore }: ManageProps) {
         <Container>
             <Row>
                 <Col>
-                    <h2 className="mt-3">{isEditMode ? 'Edit Chore' : 'Create New Chore'}</h2>
                     <Form className='mt-3' onSubmit={handleSubmit}>
                         <Form.Group className="mb-3" controlId="choreName">
                             <Form.Label>Chore Name</Form.Label>
@@ -155,9 +154,6 @@ function Manage({ onChoreCreated, editChore }: ManageProps) {
                                     onChange={handleInputChange}
                                     required
                                 >
-                                    <option value={0}>
-                                        Select a user
-                                    </option>
                                     {users.map((user) => (
                                         <option key={user.id} value={user.id}>
                                             {user.username} ({user.email})
