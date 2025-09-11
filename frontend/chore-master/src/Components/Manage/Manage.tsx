@@ -29,7 +29,7 @@ function Manage({ onChoreCreated, editChore }: ManageProps) {
             setChoreData({
                 name: editChore.name,
                 threshold: editChore.threshold,
-                assignedToUserID: editChore.assignedTo || 0,
+                assignedToUserID: editChore.assignedTo.id || 0,
                 isReassignedable: editChore.isReassignedable
             });
         }

@@ -5,6 +5,6 @@ public interface IChoreManagementService
     Task<Chore?> GetChoreByIdAsync(int id);
     Task<Chore> CreateChoreAsync(ChoreDto choreDto);
     Task<Chore?> UpdateChoreAsync(int id, ChoreUpdateDto chore);
-    Task<string> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId);
+    Task<Chore> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId);
     Task<int> DeleteChoreAsync(int id);
 }

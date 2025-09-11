@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { ChoreResponseDto } from '../Models/ChoreResponseDto';
 import type { ChoreDto } from '../Models/ChoreDto';
 import type { ChoreEditDto } from '../Models/ChoreEditDto';
+import type { CompleteChoreDto } from '../Models/CompleteChoreDto';
 import type { User } from '../Models/User';
 
 interface ApiContextType {
@@ -11,6 +12,7 @@ interface ApiContextType {
     createChore: (chore: ChoreDto) => Promise<any>;
     updateChore: (choreId: number, chore: ChoreEditDto) => Promise<any>;
     deleteChore: (choreId: number) => Promise<boolean>;
+    completeChore: (request: CompleteChoreDto) => Promise<any>;
     getAllUsers: () => Promise<User[]>;
 }
 
@@ -108,12 +110,29 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
         return await response.json();
     };
 
+    const completeChore = async (request: CompleteChoreDto): Promise<any> => {
+        const response = await fetch(`${BASE_URL}/chores/complete`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(request)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    };
+
     const value: ApiContextType = {
         getAllChores,
         getChoresByUser,
         createChore,
         updateChore,
         deleteChore,
+        completeChore,
         getAllUsers
     };
 

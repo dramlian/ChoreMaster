@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import Manage from '../Manage/Manage';
+import Complete from '../Complete/Complete';
 import { useApi } from '../../contexts/ApiContext';
 
 function ChoreList() {
@@ -19,8 +20,10 @@ function ChoreList() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(false);
     const [editChore, setEditChore] = useState<ChoreResponseDto | undefined>(undefined);
+    const [completeChore, setCompleteChore] = useState<ChoreResponseDto | undefined>(undefined);
 
     useEffect(() => {
         // Fetch users when component mounts
@@ -92,9 +95,20 @@ function ChoreList() {
         setShowModal(true);
     };
 
+    const handleShowCompleteModal = (chore: ChoreResponseDto) => {
+        setCompleteChore(chore);
+        setShowCompleteModal(true);
+    };
+
     const handleCloseModal = () => {
         setShowModal(false);
         setEditChore(undefined);
+        setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
+    };
+
+    const handleCloseCompleteModal = () => {
+        setShowCompleteModal(false);
+        setCompleteChore(undefined);
         setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
     };
 
@@ -186,6 +200,14 @@ function ChoreList() {
                                     <td>{chore.isReassignedable ? 'Yes' : 'No'}</td>
                                     <td>
                                         <Button 
+                                            variant="success" 
+                                            size="sm"
+                                            className="me-2"
+                                            onClick={() => handleShowCompleteModal(chore)}
+                                        >
+                                            Complete
+                                        </Button>
+                                        <Button 
                                             variant="warning" 
                                             size="sm"
                                             className="me-2"
@@ -218,6 +240,21 @@ function ChoreList() {
                         onChoreCreated={handleCloseModal} 
                         editChore={editChore}
                     />
+                </Modal.Body>
+            </Modal>
+
+            {/* Complete Chore Modal */}
+            <Modal show={showCompleteModal} onHide={handleCloseCompleteModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Complete Chore</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {completeChore && (
+                        <Complete 
+                            chore={completeChore}
+                            onCompleted={handleCloseCompleteModal} 
+                        />
+                    )}
                 </Modal.Body>
             </Modal>
         </Container>

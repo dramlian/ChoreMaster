@@ -17,7 +17,7 @@ public class ChoreManagementService : IChoreManagementService
     public async Task<IEnumerable<Chore>> GetAllChoresAsync()
     {
         _logger.LogInformation("Fetching all chores from the database.");
-        return await _context.Chores.ToListAsync();
+        return await _context.Chores.Include(x => x.AssignedTo).ToListAsync();
     }
 
     public async Task<IEnumerable<Chore>> GetChoresByUserIdAsync(int userId)
@@ -100,7 +100,7 @@ public class ChoreManagementService : IChoreManagementService
         return existingChore;
     }
 
-    public async Task<string> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId)
+    public async Task<Chore> CompleteChoreAsync(int choreId, int fromUserId, int? toUserId)
     {
         var fromUser = await _userManagementService.GetUserByIdAsync(fromUserId)
                        ?? throw new ArgumentException("User not found.");
@@ -127,7 +127,7 @@ public class ChoreManagementService : IChoreManagementService
         chore.History.Add(new ChoreHistory(message));
 
         await _context.SaveChangesAsync();
-        return message;
+        return chore;
     }
 
 
