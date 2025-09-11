@@ -2,15 +2,18 @@
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';   
 import { useState, useEffect } from 'react';
 import type { ChoreDto } from '../../Models/ChoreDto';
+import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import { useApi } from '../../contexts/ApiContext';
 
 interface ManageProps {
     onChoreCreated?: () => void;
+    editChore?: ChoreResponseDto;
 }
 
-function Manage({ onChoreCreated }: ManageProps) {
-    const { createChore, getAllUsers } = useApi();
+function Manage({ onChoreCreated, editChore }: ManageProps) {
+    const { createChore, updateChore, getAllUsers } = useApi();
+    const isEditMode = Boolean(editChore); // Determine edit mode from presence of editChore
     const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
@@ -19,6 +22,18 @@ function Manage({ onChoreCreated }: ManageProps) {
     });
 
     const [users, setUsers] = useState<User[]>([]);
+
+    // Initialize form with edit data when in edit mode
+    useEffect(() => {
+        if (editChore) {
+            setChoreData({
+                name: editChore.name,
+                threshold: editChore.threshold,
+                assignedToUserID: editChore.assignedTo || 0,
+                isReassignedable: editChore.isReassignedable
+            });
+        }
+    }, [editChore]);
 
     // Fetch users when component mounts
     useEffect(() => {
@@ -55,33 +70,48 @@ function Manage({ onChoreCreated }: ManageProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Create the JSON payload
-        const payload: ChoreDto = {
-            name: choreData.name,
-            threshold: choreData.threshold,
-            assignedToUserID: choreData.assignedToUserID,
-            isReassignedable: choreData.isReassignedable
-        };
-
-        console.log('JSON Payload:', JSON.stringify(payload, null, 2));
-        
         try {
-            const result = await createChore(payload);
-            console.log('Chore created successfully:', result);
-            // Reset form
-            setChoreData({
-                name: '',
-                threshold: 0,
-                assignedToUserID: 0,
-                isReassignedable: true
-            });
-            // Call the callback if provided
+            let result;
+            if (isEditMode && editChore) {
+                // Create edit payload without assigned user
+                const editPayload = {
+                    name: choreData.name,
+                    threshold: choreData.threshold,
+                    isReassignedable: choreData.isReassignedable
+                };
+                console.log('Edit Payload:', JSON.stringify(editPayload, null, 2));
+                result = await updateChore(editChore.id, editPayload);
+                console.log('Chore updated successfully:', result);
+            } else {
+                // Create the full JSON payload for creation
+                const payload: ChoreDto = {
+                    name: choreData.name,
+                    threshold: choreData.threshold,
+                    assignedToUserID: choreData.assignedToUserID,
+                    isReassignedable: choreData.isReassignedable
+                };
+                console.log('Create Payload:', JSON.stringify(payload, null, 2));
+                result = await createChore(payload);
+                console.log('Chore created successfully:', result);
+            }
+            
+            // Reset form only in create mode
+            if (!isEditMode) {
+                setChoreData({
+                    name: '',
+                    threshold: 0,
+                    assignedToUserID: 0,
+                    isReassignedable: true
+                });
+            }
+            
+            // Call the callback if provided (this will close modal and refresh)
             if (onChoreCreated) {
                 onChoreCreated();
             }
         } catch (error) {
-            console.error('Error creating chore:', error);
-            alert('Failed to create chore. Please try again.');
+            console.error(`Error ${isEditMode ? 'updating' : 'creating'} chore:`, error);
+            alert(`Failed to ${isEditMode ? 'update' : 'create'} chore. Please try again.`);
         }
     };
 
@@ -89,7 +119,7 @@ function Manage({ onChoreCreated }: ManageProps) {
         <Container>
             <Row>
                 <Col>
-                    <h2 className="mt-3">Create New Chore</h2>
+                    <h2 className="mt-3">{isEditMode ? 'Edit Chore' : 'Create New Chore'}</h2>
                     <Form className='mt-3' onSubmit={handleSubmit}>
                         <Form.Group className="mb-3" controlId="choreName">
                             <Form.Label>Chore Name</Form.Label>
@@ -116,24 +146,26 @@ function Manage({ onChoreCreated }: ManageProps) {
                             />
                         </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="assignedUserId">
-                            <Form.Label>Assigned User</Form.Label>
-                            <Form.Select 
-                                name="assignedToUserID"
-                                value={choreData.assignedToUserID}
-                                onChange={handleInputChange}
-                                required
-                            >
-                                <option value={0}>
-                                    Select a user
-                                </option>
-                                {users.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.username} ({user.email})
+                        {!isEditMode && (
+                            <Form.Group className="mb-3" controlId="assignedUserId">
+                                <Form.Label>Assigned User</Form.Label>
+                                <Form.Select 
+                                    name="assignedToUserID"
+                                    value={choreData.assignedToUserID}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value={0}>
+                                        Select a user
                                     </option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.username} ({user.email})
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        )}
 
                         <Form.Group className="mb-3" controlId="isReassignedable">
                             <Form.Check 
@@ -146,7 +178,7 @@ function Manage({ onChoreCreated }: ManageProps) {
                         </Form.Group>
 
                         <Button variant="primary" type="submit">
-                            Create Chore
+                            {isEditMode ? 'Update Chore' : 'Create Chore'}
                         </Button>
                     </Form>
 

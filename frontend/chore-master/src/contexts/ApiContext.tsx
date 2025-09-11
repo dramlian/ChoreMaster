@@ -2,12 +2,14 @@ import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { ChoreResponseDto } from '../Models/ChoreResponseDto';
 import type { ChoreDto } from '../Models/ChoreDto';
+import type { ChoreEditDto } from '../Models/ChoreEditDto';
 import type { User } from '../Models/User';
 
 interface ApiContextType {
     getAllChores: () => Promise<ChoreResponseDto[]>;
     getChoresByUser: (userId: number) => Promise<ChoreResponseDto[]>;
     createChore: (chore: ChoreDto) => Promise<any>;
+    updateChore: (choreId: number, chore: ChoreEditDto) => Promise<any>;
     deleteChore: (choreId: number) => Promise<boolean>;
     getAllUsers: () => Promise<User[]>;
 }
@@ -67,6 +69,22 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
         return await response.json();
     };
 
+    const updateChore = async (choreId: number, chore: ChoreEditDto): Promise<any> => {
+        const response = await fetch(`${BASE_URL}/chores/update/${choreId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(chore)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    };
+
     const deleteChore = async (choreId: number): Promise<boolean> => {
         const response = await fetch(`${BASE_URL}/chores/${choreId}`, {
             method: 'DELETE',
@@ -94,6 +112,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
         getAllChores,
         getChoresByUser,
         createChore,
+        updateChore,
         deleteChore,
         getAllUsers
     };

@@ -96,6 +96,7 @@ public class ChoreManagementService : IChoreManagementService
         existingChore.Threshold = chore.Threshold.Value;
         existingChore.IsReassignedable = chore.IsReassignedable.Value;
 
+        await _context.SaveChangesAsync();
         return existingChore;
     }
 

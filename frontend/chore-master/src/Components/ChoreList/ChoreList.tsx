@@ -20,6 +20,7 @@ function ChoreList() {
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(false);
+    const [editChore, setEditChore] = useState<ChoreResponseDto | undefined>(undefined);
 
     useEffect(() => {
         // Fetch users when component mounts
@@ -82,11 +83,18 @@ function ChoreList() {
     };
 
     const handleShowModal = () => {
+        setEditChore(undefined);
+        setShowModal(true);
+    };
+
+    const handleShowEditModal = (chore: ChoreResponseDto) => {
+        setEditChore(chore);
         setShowModal(true);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
+        setEditChore(undefined);
         setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
     };
 
@@ -178,6 +186,14 @@ function ChoreList() {
                                     <td>{chore.isReassignedable ? 'Yes' : 'No'}</td>
                                     <td>
                                         <Button 
+                                            variant="warning" 
+                                            size="sm"
+                                            className="me-2"
+                                            onClick={() => handleShowEditModal(chore)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button 
                                             variant="danger" 
                                             size="sm"
                                             onClick={() => handleDeleteChore(chore.id)}
@@ -192,13 +208,16 @@ function ChoreList() {
                 </Col>
             </Row>
 
-            {/* Create Chore Modal */}
+            {/* Create/Edit Chore Modal */}
             <Modal show={showModal} onHide={handleCloseModal} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Create New Chore</Modal.Title>
+                    <Modal.Title>{editChore ? 'Edit Chore' : 'Create New Chore'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Manage onChoreCreated={handleCloseModal} />
+                    <Manage 
+                        onChoreCreated={handleCloseModal} 
+                        editChore={editChore}
+                    />
                 </Modal.Body>
             </Modal>
         </Container>
