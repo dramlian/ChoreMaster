@@ -9,8 +9,10 @@ import { useState, useEffect } from 'react';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import Manage from '../Manage/Manage';
+import { useApi } from '../../contexts/ApiContext';
 
 function ChoreList() {
+    const { getAllChores, getChoresByUser, deleteChore, getAllUsers } = useApi();
     const [chores, setChores] = useState<ChoreResponseDto[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<number>(0);
@@ -23,42 +25,26 @@ function ChoreList() {
         // Fetch users when component mounts
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:5272/api/users/all');
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUsers(userData);
-                } else {
-                    console.error('Failed to fetch users:', response.statusText);
-                }
+                const userData = await getAllUsers();
+                setUsers(userData);
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
         };
 
         fetchUsers();
-    }, []);
+    }, [getAllUsers]);
 
     useEffect(() => {
         const fetchChores = async () => {
             setLoading(true);
             try {
-                // If no user selected (0), fetch all chores, otherwise fetch for specific user
-                const url = selectedUserId === 0 
-                    ? 'http://localhost:5272/api/chores/all'
-                    : `http://localhost:5272/api/chores/all/${selectedUserId}`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'accept': 'text/plain'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                let data: ChoreResponseDto[];
+                if (selectedUserId === 0) {
+                    data = await getAllChores();
+                } else {
+                    data = await getChoresByUser(selectedUserId);
                 }
-
-                const data: ChoreResponseDto[] = await response.json();
                 setChores(data);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An error occurred');
@@ -68,7 +54,7 @@ function ChoreList() {
         };
 
         fetchChores();
-    }, [selectedUserId, modalClosed]); // Re-fetch when selectedUserId changes or modal closes
+    }, [selectedUserId, modalClosed, getAllChores, getChoresByUser]); // Re-fetch when selectedUserId changes or modal closes
 
     const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUserId(parseInt(e.target.value) || 0);
@@ -80,19 +66,13 @@ function ChoreList() {
         }
 
         try {
-            const response = await fetch(`http://localhost:5272/api/chores/${choreId}`, {
-                method: 'DELETE',
-                headers: {
-                    'accept': '*/*'
-                }
-            });
-
-            if (response.ok) {
+            const success = await deleteChore(choreId);
+            if (success) {
                 // Remove the deleted chore from the state
                 setChores(prevChores => prevChores.filter(chore => chore.id !== choreId));
                 console.log(`Chore ${choreId} deleted successfully`);
             } else {
-                console.error('Failed to delete chore:', response.statusText);
+                console.error('Failed to delete chore');
                 alert('Failed to delete chore. Please try again.');
             }
         } catch (error) {

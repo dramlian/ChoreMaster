@@ -3,12 +3,14 @@ import { Container, Button, Form, Row, Col } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import type { ChoreDto } from '../../Models/ChoreDto';
 import type { User } from '../../Models/User';
+import { useApi } from '../../contexts/ApiContext';
 
 interface ManageProps {
     onChoreCreated?: () => void;
 }
 
 function Manage({ onChoreCreated }: ManageProps) {
+    const { createChore, getAllUsers } = useApi();
     const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
@@ -22,20 +24,15 @@ function Manage({ onChoreCreated }: ManageProps) {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('http://localhost:5272/api/users/all');
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUsers(userData);
-                } else {
-                    console.error('Failed to fetch users:', response.statusText);
-                }
+                const userData = await getAllUsers();
+                setUsers(userData);
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
         };
 
         fetchUsers();
-    }, []);
+    }, [getAllUsers]);
 
     const handleInputChange = (e: React.ChangeEvent<any>) => {
         const { name, value, type, checked } = e.target;
@@ -69,33 +66,22 @@ function Manage({ onChoreCreated }: ManageProps) {
         console.log('JSON Payload:', JSON.stringify(payload, null, 2));
         
         try {
-            const response = await fetch('http://localhost:5272/api/chores/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
+            const result = await createChore(payload);
+            console.log('Chore created successfully:', result);
+            // Reset form
+            setChoreData({
+                name: '',
+                threshold: 0,
+                assignedToUserID: 0,
+                isReassignedable: true
             });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Chore created successfully:', result);
-                // Reset form
-                setChoreData({
-                    name: '',
-                    threshold: 0,
-                    assignedToUserID: 0,
-                    isReassignedable: true
-                });
-                // Call the callback if provided
-                if (onChoreCreated) {
-                    onChoreCreated();
-                }
-            } else {
-                console.error('Failed to create chore:', response.statusText);
+            // Call the callback if provided
+            if (onChoreCreated) {
+                onChoreCreated();
             }
         } catch (error) {
             console.error('Error creating chore:', error);
+            alert('Failed to create chore. Please try again.');
         }
     };
 
