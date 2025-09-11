@@ -43,7 +43,7 @@ public class ChoreManagementController : ControllerBase
 
     [HttpPut]
     [Route("update/{id}")]
-    public async Task<ActionResult<Chore>> UpdateChore(int id, ChoreDto chore)
+    public async Task<ActionResult<Chore>> UpdateChore(int id, ChoreUpdateDto chore)
     {
         return Ok(await _choreManagementService.UpdateChoreAsync(id, chore));
     }

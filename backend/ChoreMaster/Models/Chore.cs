@@ -31,12 +31,16 @@ public class Chore
     }
 }
 
-public class ChoreDto
+public class ChoreDto : ChoreUpdateDto
 {
-    public required string Name { get; set; }
-    public required int Threshold { get; set; }
     public int? AssignedToUserID { get; set; }
-    public required bool IsReassignedable { get; set; }
+}
+
+public class ChoreUpdateDto
+{
+    public string? Name { get; set; }
+    public int? Threshold { get; set; }
+    public bool? IsReassignedable { get; set; }
 }
 
 public class CompleteChoreRequestDto

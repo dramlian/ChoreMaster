@@ -45,31 +45,41 @@ public class ChoreManagementService : IChoreManagementService
 
     public async Task<Chore> CreateChoreAsync(ChoreDto choreDto)
     {
-        _logger.LogInformation("Creating a new chore with title {Title}.", choreDto.Name);
-        if (choreDto?.AssignedToUserID is not null)
-        {
-            int userId = (int)choreDto?.AssignedToUserID!;
-            var user = await _userManagementService.GetUserByIdAsync(userId);
-            if (user is not null)
-            {
+        if (choreDto is null)
+            throw new ArgumentNullException(nameof(choreDto));
 
-                var chore = new Chore(choreDto.Name, choreDto.Threshold, user, choreDto.IsReassignedable);
-                _context.Chores.Add(chore);
-                await _context.SaveChangesAsync();
-                return chore;
-            }
-            else
-            {
-                throw new ArgumentException("Assigned user not found.");
-            }
-        }
-        else
-        {
-            throw new ArgumentException("Invalid chore data or user not found.");
-        }
+        if (choreDto.AssignedToUserID is null)
+            throw new ArgumentException("User ID is required to assign a chore.");
+
+        if (string.IsNullOrWhiteSpace(choreDto.Name))
+            throw new ArgumentException("Chore name is required.");
+
+        if (choreDto.Threshold is null)
+            throw new ArgumentException("Threshold is required.");
+
+        if (choreDto.IsReassignedable is null)
+            throw new ArgumentException("Reassignable flag is required.");
+
+        var user = await _userManagementService.GetUserByIdAsync(choreDto.AssignedToUserID.Value);
+        if (user is null)
+            throw new ArgumentException("Assigned user not found.");
+
+        _logger.LogInformation("Creating a new chore with title {Title}.", choreDto.Name);
+
+        var chore = new Chore(
+            choreDto.Name,
+            choreDto.Threshold.Value,
+            user,
+            choreDto.IsReassignedable.Value);
+
+        _context.Chores.Add(chore);
+        await _context.SaveChangesAsync();
+
+        return chore;
     }
 
-    public async Task<Chore?> UpdateChoreAsync(int id, ChoreDto chore)
+
+    public async Task<Chore?> UpdateChoreAsync(int id, ChoreUpdateDto chore)
     {
         _logger.LogInformation("Updating chore with ID {ChoreId}.", id);
         var existingChore = await _context.Chores.FindAsync(id);
@@ -78,26 +88,14 @@ public class ChoreManagementService : IChoreManagementService
             throw new ArgumentException("Chore not found.");
         }
 
-        existingChore.Name = chore.Name;
-        existingChore.Threshold = chore.Threshold;
-        existingChore.IsReassignedable = chore.IsReassignedable;
-
-        if (chore.AssignedToUserID != existingChore.AssignedTo?.Id)
+        if (chore.Name is null || chore.Threshold is null || chore.IsReassignedable is null)
         {
-            if (chore.AssignedToUserID is not null)
-            {
-                var user = await _userManagementService.GetUserByIdAsync(chore.AssignedToUserID.Value);
-                if (user is null)
-                {
-                    throw new ArgumentException("Assigned user not found.");
-                }
-                existingChore.AssignedTo = user;
-            }
-            else
-            {
-                existingChore.AssignedTo = null;
-            }
+            throw new ArgumentException("Invalid chore data.");
         }
+        existingChore.Name = chore.Name;
+        existingChore.Threshold = chore.Threshold.Value;
+        existingChore.IsReassignedable = chore.IsReassignedable.Value;
+
         return existingChore;
     }
 
