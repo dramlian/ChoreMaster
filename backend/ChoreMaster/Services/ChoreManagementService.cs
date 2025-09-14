@@ -31,7 +31,7 @@ public class ChoreManagementService : IChoreManagementService
         return await _context.Chores.Where(x => x.AssignedTo != null && x.AssignedTo.Id == userId).ToListAsync();
     }
 
-    public async Task<Chore?> GetChoreByIdAsync(int id)
+    private async Task<Chore?> GetChoreByIdAsync(int id)
     {
         _logger.LogInformation("Fetching chore with ID {ChoreId} from the database.", id);
         var chore = await _context.Chores.Include(x => x.AssignedTo).Include(x => x.History).FirstOrDefaultAsync(x => x.Id.Equals(id));
@@ -148,5 +148,9 @@ public class ChoreManagementService : IChoreManagementService
         return id;
     }
 
+    public async Task<IEnumerable<ChoreHistory>> GetChoreHistoryAsync(int choreId)
+    {
+        return await _context.Chores.Include(c => c.History).Where(c => c.Id.Equals(choreId)).SelectMany(c => c.History).ToListAsync();
+    }
 }
 

@@ -27,13 +27,12 @@ public class ChoreManagementController : ControllerBase
         return Ok(await _choreManagementService.GetChoresByUserIdAsync(userId));
     }
 
-    //Todo delete
-    // [HttpGet]
-    // [Route("{id}")]
-    // public async Task<ActionResult<Chore>> GetChoreById(int id)
-    // {
-    //     return Ok(await _choreManagementService.GetChoreByIdAsync(id));
-    // }
+    [HttpGet]
+    [Route("{id}/history")]
+    public async Task<ActionResult<IEnumerable<ChoreHistory>>> GetChoreHistory(int id)
+    {
+        return Ok(await _choreManagementService.GetChoreHistoryAsync(id));
+    }
 
     [HttpPost]
     [Route("create")]
