@@ -132,6 +132,10 @@ function ChoreList() {
         return isOverdue ? `Overdue (${totalDays}d)` : `${totalDays}d`;
     };
 
+    const isNotDisplayedOnPhone = () : boolean => {
+        return window.innerWidth > 768; // Example breakpoint for mobile devices
+    }
+
     if (loading) {
         return (
             <Container className="mt-4">
@@ -185,27 +189,27 @@ function ChoreList() {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                {isNotDisplayedOnPhone() && <th>ID</th>}
                                 <th>Name</th>
-                                <th>Last Completed</th>
-                                <th>Threshold (days)</th>
+                                {isNotDisplayedOnPhone() && <th>Last Completed</th>}
+                                {isNotDisplayedOnPhone() && <th>Threshold (days)</th>}
                                 <th>Time Left</th>
-                                <th>Reassignable</th>
+                                {isNotDisplayedOnPhone() && <th>Reassignable</th>}
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {chores.map((chore) => (
                                 <tr key={chore.id}>
-                                    <td>{chore.id}</td>
+                                    {isNotDisplayedOnPhone() && <td>{chore.id}</td>}
                                     <td>{chore.name}</td>
-                                    <td>{formatDate(chore.lastCompleted)}</td>
-                                    <td>{chore.threshold}</td>
+                                    {isNotDisplayedOnPhone() && <td>{formatDate(chore.lastCompleted)}</td>}
+                                    {isNotDisplayedOnPhone() && <td>{chore.threshold}</td>}
                                     <td className={chore.timeLeft.startsWith('-') ? 'text-danger' : 'text-success'}>
                                         {formatTimeLeft(chore.timeLeft)}
                                     </td>
-                                    <td>{chore.isReassignedable ? 'Yes' : 'No'}</td>
-                                    <td>
+                                    {isNotDisplayedOnPhone() && <td>{chore.isReassignedable ? 'Yes' : 'No'}</td>}
+                                    <td className="d-flex flex-column gap-1">
                                         <Button 
                                             variant="success" 
                                             size="sm"
@@ -225,6 +229,7 @@ function ChoreList() {
                                         <Button 
                                             variant="danger" 
                                             size="sm"
+                                            className="me-2"
                                             onClick={() => handleDeleteChore(chore.id)}
                                         >
                                             Delete
