@@ -5,6 +5,7 @@ import type { ChoreDto } from '../../Models/ChoreDto';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import { useApi } from '../../contexts/ApiContext';
+import type { ChoreEditDto } from '../../Models/ChoreEditDto';
 
 interface ManageProps {
     show: boolean;
@@ -15,7 +16,7 @@ interface ManageProps {
 
 function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
     const { createChore, updateChore, getAllUsers } = useApi();
-    const isEditMode = Boolean(editChore); // Determine edit mode from presence of editChore
+    const isEditMode = Boolean(editChore); 
     const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
@@ -25,7 +26,6 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
 
     const [users, setUsers] = useState<User[]>([]);
 
-    // Initialize form with edit data when in edit mode
     useEffect(() => {
         if (editChore) {
             setChoreData({
@@ -37,7 +37,6 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
         }
     }, [editChore]);
 
-    // Fetch users when component mounts
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -75,8 +74,7 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
         try {
             let result;
             if (isEditMode && editChore) {
-                // Create edit payload without assigned user
-                const editPayload = {
+                const editPayload : ChoreEditDto = {
                     name: choreData.name,
                     threshold: choreData.threshold,
                     isReassignedable: choreData.isReassignedable
@@ -85,7 +83,6 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
                 result = await updateChore(editChore.id, editPayload);
                 console.log('Chore updated successfully:', result);
             } else {
-                // Create the full JSON payload for creation
                 const payload: ChoreDto = {
                     name: choreData.name,
                     threshold: choreData.threshold,
@@ -97,7 +94,6 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
                 console.log('Chore created successfully:', result);
             }
             
-            // Reset form only in create mode
             if (!isEditMode) {
                 setChoreData({
                     name: '',
@@ -107,12 +103,10 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
                 });
             }
             
-            // Call the callback if provided (this will trigger refresh)
             if (onChoreCreated) {
                 onChoreCreated();
             }
             
-            // Close the modal
             onHide();
         } catch (error) {
             console.error(`Error ${isEditMode ? 'updating' : 'creating'} chore:`, error);

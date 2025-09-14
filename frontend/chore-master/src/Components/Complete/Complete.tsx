@@ -20,9 +20,8 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
         fromUserId: chore?.assignedTo.id || 0,
         toUserId: undefined
     });
-    const [loading, setLoading] = useState<boolean>(false);
 
-    // Update completeData when chore changes
+
     useEffect(() => {
         if (chore) {
             setCompleteData({
@@ -33,7 +32,6 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
         }
     }, [chore]);
 
-    // Fetch users when component mounts
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -59,31 +57,26 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         
         try {
             console.log('Complete Payload:', JSON.stringify(completeData, null, 2));
             const result = await completeChore(completeData);
             console.log('Chore completed successfully:', result);
             
-            // Call the callback if provided (this will trigger refresh)
+
             if (onCompleted) {
                 onCompleted();
             }
             
-            // Close the modal
             onHide();
         } catch (error) {
             console.error('Error completing chore:', error);
             alert('Failed to complete chore. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
     const currentUser = users.find(user => user.id === chore?.assignedTo.id);
 
-    // Don't render if no chore is provided
     if (!chore) {
         return null;
     }
@@ -147,9 +140,8 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
                                 <Button 
                                     variant="success" 
                                     type="submit" 
-                                    disabled={loading}
                                 >
-                                    {loading ? 'Completing...' : 'Complete Chore'}
+                                    Complete Chore
                                 </Button>
                             </Form>
                         </Col>
