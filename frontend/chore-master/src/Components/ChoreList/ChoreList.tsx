@@ -4,27 +4,27 @@ import Col from 'react-bootstrap/Col';
 import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import { useState, useEffect } from 'react';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import Manage from '../Manage/Manage';
 import Complete from '../Complete/Complete';
+import Delete from '../Delete/Delete';
 import { useApi } from '../../contexts/ApiContext';
 
 function ChoreList() {
-    const { getAllChores, getChoresByUser, deleteChore, getAllUsers } = useApi();
+    const { getAllChores, getChoresByUser, getAllUsers } = useApi();
     const [chores, setChores] = useState<ChoreResponseDto[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [showModal, setShowModal] = useState<boolean>(false);
+    const [showManageModal, setShowManageModal] = useState<boolean>(false);
     const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const [modalClosed, setModalClosed] = useState<boolean>(false);
+    const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
     const [editChore, setEditChore] = useState<ChoreResponseDto | undefined>(undefined);
-    const [completeChore, setCompleteChore] = useState<ChoreResponseDto | undefined>(undefined);
+    const [completeChore, setCompleteChore] = useState<ChoreResponseDto | null>(null);
     const [deleteChoreId, setDeleteChoreId] = useState<number | null>(null);
 
     useEffect(() => {
@@ -60,52 +60,39 @@ function ChoreList() {
         };
 
         fetchChores();
-    }, [selectedUserId, modalClosed, getAllChores, getChoresByUser]); // Re-fetch when selectedUserId changes or modal closes
+    }, [selectedUserId, refreshTrigger, getAllChores, getChoresByUser]); // Re-fetch when selectedUserId changes or refresh is triggered
 
     const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedUserId(parseInt(e.target.value) || 0);
     };
 
-    const handleDeleteChore = async (choreId: number) => {
+    const handleDeleteChore = (choreId: number) => {
         setDeleteChoreId(choreId);
         setShowDeleteModal(true);
     };
 
-    const confirmDeleteChore = async () => {
-        if (deleteChoreId === null) return;
-
-        try {
-            const success = await deleteChore(deleteChoreId);
-            if (success) {
-                // Remove the deleted chore from the state
-                setChores(prevChores => prevChores.filter(chore => chore.id !== deleteChoreId));
-                console.log(`Chore ${deleteChoreId} deleted successfully`);
-            } else {
-                console.error('Failed to delete chore');
-                alert('Failed to delete chore. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error deleting chore:', error);
-            alert('Error deleting chore. Please try again.');
-        } finally {
-            setShowDeleteModal(false);
-            setDeleteChoreId(null);
-        }
+    const handleDeleteSuccess = (deletedChoreId: number) => {
+        // Remove the deleted chore from the state
+        setChores(prevChores => prevChores.filter(chore => chore.id !== deletedChoreId));
+        setRefreshTrigger(prev => !prev); // Trigger refresh
     };
 
-    const handleCloseDeleteModal = () => {
-        setShowDeleteModal(false);
-        setDeleteChoreId(null);
+    const handleManageSuccess = () => {
+        setRefreshTrigger(prev => !prev); // Trigger refresh
     };
 
-    const handleShowModal = () => {
+    const handleCompleteSuccess = () => {
+        setRefreshTrigger(prev => !prev); // Trigger refresh
+    };
+
+    const handleShowManageModal = () => {
         setEditChore(undefined);
-        setShowModal(true);
+        setShowManageModal(true);
     };
 
     const handleShowEditModal = (chore: ChoreResponseDto) => {
         setEditChore(chore);
-        setShowModal(true);
+        setShowManageModal(true);
     };
 
     const handleShowCompleteModal = (chore: ChoreResponseDto) => {
@@ -113,16 +100,21 @@ function ChoreList() {
         setShowCompleteModal(true);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
+    const handleCloseManageModal = () => {
+        setShowManageModal(false);
         setEditChore(undefined);
-        setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
+        // Don't trigger refresh here - it will be handled by success callback
     };
 
     const handleCloseCompleteModal = () => {
         setShowCompleteModal(false);
-        setCompleteChore(undefined);
-        setModalClosed(prev => !prev); // Toggle flag to trigger useEffect
+        setCompleteChore(null);
+        // Don't trigger refresh here - it will be handled by success callback
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+        setDeleteChoreId(null);
     };
 
     const formatDate = (dateString: string) => {
@@ -179,7 +171,7 @@ function ChoreList() {
                 <Col>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <h2>Chore List</h2>
-                        <Button variant="success" onClick={handleShowModal}>
+                        <Button variant="success" onClick={handleShowManageModal}>
                             Create Chore
                         </Button>
                     </div>
@@ -255,52 +247,29 @@ function ChoreList() {
                 </Col>
             </Row>
 
-            {/* Create/Edit Chore Modal */}
-            <Modal show={showModal} onHide={handleCloseModal} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>{editChore ? 'Edit Chore' : 'Create New Chore'}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Manage 
-                        onChoreCreated={handleCloseModal} 
-                        editChore={editChore}
-                    />
-                </Modal.Body>
-            </Modal>
+            {/* Manage Chore Modal */}
+            <Manage 
+                show={showManageModal}
+                onHide={handleCloseManageModal}
+                onChoreCreated={handleManageSuccess}
+                editChore={editChore}
+            />
 
             {/* Complete Chore Modal */}
-            <Modal show={showCompleteModal} onHide={handleCloseCompleteModal} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Complete Chore</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {completeChore && (
-                        <Complete 
-                            chore={completeChore}
-                            onCompleted={handleCloseCompleteModal} 
-                        />
-                    )}
-                </Modal.Body>
-            </Modal>
+            <Complete 
+                show={showCompleteModal}
+                onHide={handleCloseCompleteModal}
+                chore={completeChore}
+                onCompleted={handleCompleteSuccess}
+            />
 
             {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Delete</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Are you sure you want to delete this chore?</p>
-                    <p className="text-muted">This action cannot be undone.</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseDeleteModal}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={confirmDeleteChore}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            <Delete
+                show={showDeleteModal}
+                onHide={handleCloseDeleteModal}
+                choreId={deleteChoreId}
+                onDeleteSuccess={() => deleteChoreId && handleDeleteSuccess(deleteChoreId)}
+            />
         </Container>
     )
 }
