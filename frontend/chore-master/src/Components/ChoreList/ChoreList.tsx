@@ -11,6 +11,7 @@ import Manage from '../Manage/Manage';
 import Complete from '../Complete/Complete';
 import Delete from '../Delete/Delete';
 import { useApi } from '../../contexts/ApiContext';
+import History from '../History/History';
 
 function ChoreList() {
     const { getAllChores, getChoresByUser, getAllUsers } = useApi();
@@ -22,10 +23,12 @@ function ChoreList() {
     const [showManageModal, setShowManageModal] = useState<boolean>(false);
     const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
     const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
     const [editChore, setEditChore] = useState<ChoreResponseDto | undefined>(undefined);
     const [completeChore, setCompleteChore] = useState<ChoreResponseDto | null>(null);
     const [deleteChoreId, setDeleteChoreId] = useState<number | null>(null);
+    const [choreHistoryId, setChoreHistoryId] = useState<number | null>(null);
 
     useEffect(() => {
         // Fetch users when component mounts
@@ -66,56 +69,59 @@ function ChoreList() {
         setSelectedUserId(parseInt(e.target.value) || 0);
     };
 
-    const handleDeleteChore = (choreId: number) => {
+    const handleDeleteChore = (choreId: number) : void => {
         setDeleteChoreId(choreId);
         setShowDeleteModal(true);
     };
 
-    const handleDeleteSuccess = (deletedChoreId: number) => {
+    const handleDeleteSuccess = (deletedChoreId: number) : void => {
         // Remove the deleted chore from the state
         setChores(prevChores => prevChores.filter(chore => chore.id !== deletedChoreId));
-        setRefreshTrigger(prev => !prev); // Trigger refresh
+        setRefreshTrigger(prev => !prev);
     };
 
-    const handleManageSuccess = () => {
-        setRefreshTrigger(prev => !prev); // Trigger refresh
+    const handleManageSuccess = () : void => {
+        setRefreshTrigger(prev => !prev);
     };
 
-    const handleCompleteSuccess = () => {
-        setRefreshTrigger(prev => !prev); // Trigger refresh
+    const handleCompleteSuccess = () : void => {
+        setRefreshTrigger(prev => !prev);
     };
 
-    const handleShowManageModal = () => {
+    const handleShowManageModal = () : void => {
         setEditChore(undefined);
         setShowManageModal(true);
     };
 
-    const handleShowEditModal = (chore: ChoreResponseDto) => {
+    const handleShowEditModal = (chore: ChoreResponseDto) : void => {
         setEditChore(chore);
         setShowManageModal(true);
     };
 
-    const handleShowCompleteModal = (chore: ChoreResponseDto) => {
+    const handleShowCompleteModal = (chore: ChoreResponseDto)  : void => {
         setCompleteChore(chore);
         setShowCompleteModal(true);
     };
 
-    const handleCloseManageModal = () => {
+    const handleCloseManageModal = () : void => {
         setShowManageModal(false);
         setEditChore(undefined);
-        // Don't trigger refresh here - it will be handled by success callback
     };
 
-    const handleCloseCompleteModal = () => {
+    const handleCloseCompleteModal = () : void => {
         setShowCompleteModal(false);
         setCompleteChore(null);
-        // Don't trigger refresh here - it will be handled by success callback
     };
 
-    const handleCloseDeleteModal = () => {
+    const handleCloseDeleteModal = () : void => {
         setShowDeleteModal(false);
         setDeleteChoreId(null);
     };
+
+    function handleChoreHistory(id: number): void {
+        setShowHistoryModal(true);
+        setChoreHistoryId(id);
+    }
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString();
@@ -239,6 +245,15 @@ function ChoreList() {
                                         >
                                             Delete
                                         </Button>
+
+                                        <Button 
+                                            variant="info" 
+                                            size="sm" 
+                                            className="me-2"
+                                            onClick={() => handleChoreHistory(chore.id)}
+                                        >
+                                            History
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -270,6 +285,8 @@ function ChoreList() {
                 choreId={deleteChoreId}
                 onDeleteSuccess={() => deleteChoreId && handleDeleteSuccess(deleteChoreId)}
             />
+
+            <History showHistoryModal={showHistoryModal} setShowHistoryModal={setShowHistoryModal} choreId={choreHistoryId} />
         </Container>
     )
 }
