@@ -1,5 +1,4 @@
 import { Modal, Button } from 'react-bootstrap';
-import { useState } from 'react';
 import { useApi } from '../../contexts/ApiContext';
 
 interface DeleteProps {
@@ -11,13 +10,10 @@ interface DeleteProps {
 
 function Delete({ show, onHide, choreId, onDeleteSuccess }: DeleteProps) {
     const { deleteChore } = useApi();
-    const [loading, setLoading] = useState<boolean>(false);
 
     const handleConfirmDelete = async () => {
-        if (choreId === null) return;
-
-        setLoading(true);
         try {
+            if (choreId === null) return;
             const success = await deleteChore(choreId);
             if (success) {
                 console.log(`Chore ${choreId} deleted successfully`);
@@ -32,8 +28,6 @@ function Delete({ show, onHide, choreId, onDeleteSuccess }: DeleteProps) {
         } catch (error) {
             console.error('Error deleting chore:', error);
             alert('Error deleting chore. Please try again.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -47,11 +41,11 @@ function Delete({ show, onHide, choreId, onDeleteSuccess }: DeleteProps) {
                 <p className="text-muted">This action cannot be undone.</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onHide} disabled={loading}>
+                <Button variant="secondary" onClick={onHide}>
                     Cancel
                 </Button>
-                <Button variant="danger" onClick={handleConfirmDelete} disabled={loading}>
-                    {loading ? 'Deleting...' : 'Delete'}
+                <Button variant="danger" onClick={handleConfirmDelete}>
+                    Delete
                 </Button>
             </Modal.Footer>
         </Modal>
