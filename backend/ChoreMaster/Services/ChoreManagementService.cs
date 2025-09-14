@@ -133,12 +133,16 @@ public class ChoreManagementService : IChoreManagementService
 
     public async Task<int> DeleteChoreAsync(int id)
     {
-        var chore = await _context.Chores.FindAsync(id);
+        var chore = await _context.Chores
+            .Include(c => c.History)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         if (chore is null)
         {
             throw new ArgumentException("Chore not found.");
         }
-
+        var histories = chore.History.ToList();
+        _context.ChoreHistories.RemoveRange(histories);
         _context.Chores.Remove(chore);
         await _context.SaveChangesAsync();
         return id;

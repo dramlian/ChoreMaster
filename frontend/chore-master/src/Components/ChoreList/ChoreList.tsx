@@ -21,9 +21,11 @@ function ChoreList() {
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(false);
     const [editChore, setEditChore] = useState<ChoreResponseDto | undefined>(undefined);
     const [completeChore, setCompleteChore] = useState<ChoreResponseDto | undefined>(undefined);
+    const [deleteChoreId, setDeleteChoreId] = useState<number | null>(null);
 
     useEffect(() => {
         // Fetch users when component mounts
@@ -65,16 +67,19 @@ function ChoreList() {
     };
 
     const handleDeleteChore = async (choreId: number) => {
-        if (!window.confirm('Are you sure you want to delete this chore?')) {
-            return;
-        }
+        setDeleteChoreId(choreId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteChore = async () => {
+        if (deleteChoreId === null) return;
 
         try {
-            const success = await deleteChore(choreId);
+            const success = await deleteChore(deleteChoreId);
             if (success) {
                 // Remove the deleted chore from the state
-                setChores(prevChores => prevChores.filter(chore => chore.id !== choreId));
-                console.log(`Chore ${choreId} deleted successfully`);
+                setChores(prevChores => prevChores.filter(chore => chore.id !== deleteChoreId));
+                console.log(`Chore ${deleteChoreId} deleted successfully`);
             } else {
                 console.error('Failed to delete chore');
                 alert('Failed to delete chore. Please try again.');
@@ -82,7 +87,15 @@ function ChoreList() {
         } catch (error) {
             console.error('Error deleting chore:', error);
             alert('Error deleting chore. Please try again.');
+        } finally {
+            setShowDeleteModal(false);
+            setDeleteChoreId(null);
         }
+    };
+
+    const handleCloseDeleteModal = () => {
+        setShowDeleteModal(false);
+        setDeleteChoreId(null);
     };
 
     const handleShowModal = () => {
@@ -268,6 +281,25 @@ function ChoreList() {
                         />
                     )}
                 </Modal.Body>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Delete</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete this chore?</p>
+                    <p className="text-muted">This action cannot be undone.</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseDeleteModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeleteChore}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </Container>
     )
