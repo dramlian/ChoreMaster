@@ -6,6 +6,7 @@ import type { ChoreEditDto } from '../Models/ChoreEditDto';
 import type { CompleteChoreDto } from '../Models/CompleteChoreDto';
 import type { ChoreHistoryDto } from '../Models/ChoreHistoryDto';
 import type { User } from '../Models/User';
+import { useAuth } from './AuthContext';
 
 interface ApiContextType {
     getAllChores: () => Promise<ChoreResponseDto[]>;
@@ -27,12 +28,36 @@ interface ApiProviderProps {
 }
 
 export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
+    const { token } = useAuth();
+
+    const getAuthHeaders = () => {
+        const headers: Record<string, string> = {
+            'accept': 'text/plain'
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return headers;
+    };
+
+    const getAuthHeadersWithContentType = () => {
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return headers;
+    };
+
     const getAllChores = async (): Promise<ChoreResponseDto[]> => {
         const response = await fetch(`${BASE_URL}/chores/all`, {
             method: 'GET',
-            headers: {
-                'accept': 'text/plain'
-            }
+            headers: getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -45,9 +70,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const getChoresByUser = async (userId: number): Promise<ChoreResponseDto[]> => {
         const response = await fetch(`${BASE_URL}/chores/all/${userId}`, {
             method: 'GET',
-            headers: {
-                'accept': 'text/plain'
-            }
+            headers: getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -60,9 +83,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const createChore = async (chore: ChoreDto): Promise<any> => {
         const response = await fetch(`${BASE_URL}/chores/create`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(chore)
         });
 
@@ -76,9 +97,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const updateChore = async (choreId: number, chore: ChoreEditDto): Promise<any> => {
         const response = await fetch(`${BASE_URL}/chores/update/${choreId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(chore)
         });
 
@@ -90,11 +109,17 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const deleteChore = async (choreId: number): Promise<boolean> => {
+        const headers: Record<string, string> = {
+            'accept': '*/*'
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${BASE_URL}/chores/${choreId}`, {
             method: 'DELETE',
-            headers: {
-                'accept': '*/*'
-            }
+            headers
         });
 
         return response.ok;
@@ -102,7 +127,8 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
 
     const getAllUsers = async (): Promise<User[]> => {
         const response = await fetch(`${BASE_URL}/users/all`, {
-            method: 'GET'
+            method: 'GET',
+            headers: getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -115,9 +141,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const completeChore = async (request: CompleteChoreDto): Promise<any> => {
         const response = await fetch(`${BASE_URL}/chores/complete`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(request)
         });
 
@@ -131,9 +155,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const getChoreHistory = async (choreId: number): Promise<ChoreHistoryDto[]> => {
         const response = await fetch(`${BASE_URL}/chores/${choreId}/history`, {
             method: 'GET',
-            headers: {
-                'accept': 'text/plain'
-            }
+            headers: getAuthHeaders()
         });
 
         if (!response.ok) {
