@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChoreMaster.Controllers;
 
 [ApiController]
 [Route("api/users")]
+[Authorize]
 public class UserManagementController : ControllerBase
 {
     private readonly IUserManagementService _userManagementService;

@@ -1,11 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using ChoreMaster.Data;
+using DotNetEnv;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+if (builder.Environment.IsDevelopment())
+{
+    Env.Load();
+}
+
+// Add services to the container
 builder.Services.AddDbContext<ChoreMasterDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 builder.Services.AddCors(options =>
 {
@@ -18,35 +24,24 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddGoogleJwtAuth(builder.Configuration);
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 
-// Add Swagger/OpenAPI services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "ChoreMaster API",
-        Version = "v1",
-    });
-});
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IChoreManagementService, ChoreManagementService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // Enable Swagger UI
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ChoreMaster API v1");
-        c.RoutePrefix = "swagger";
-        c.DocumentTitle = "ChoreMaster API Documentation";
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -55,6 +50,7 @@ app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

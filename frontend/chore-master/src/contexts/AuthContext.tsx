@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const decoded = jwtDecode<DecodedToken>(token);
       const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp > currentTime && decoded.email_verified;
+      return decoded.exp > currentTime;
     } catch {
       return false;
     }
@@ -58,12 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = (newToken: string) => {
     try {
       const decoded = jwtDecode<DecodedToken>(newToken);
-      
-      if (!decoded.email_verified) {
-        setLoginError('Email must be verified to access ChoreMaster');
-        return;
-      }
-      
+
       setLoginError(null);   
       setToken(newToken);
       setUser(decoded);
@@ -101,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const decoded = jwtDecode<DecodedToken>(tokenToCheck);
       const currentTime = Math.floor(Date.now() / 1000);
-      return decoded.exp > currentTime && decoded.email_verified;
+      return decoded.exp > currentTime;
     } catch {
       return false;
     }

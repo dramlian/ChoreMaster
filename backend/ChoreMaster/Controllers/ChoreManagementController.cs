@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChoreMaster.Controllers;
 
 [ApiController]
 [Route("api/chores")]
+[Authorize] 
 public class ChoreManagementController : ControllerBase
 {
     private readonly IChoreManagementService _choreManagementService;
