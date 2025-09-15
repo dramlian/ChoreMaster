@@ -17,6 +17,7 @@ const Header = () => {
                     <Navbar.Brand>ChoreMaster</Navbar.Brand>
                     <Navbar.Collapse className="justify-content-end">
                         {shouldShowLogin ? (
+                          <div style={{ colorScheme: "light" }}>
                             <GoogleLogin
                                 onSuccess={credentialResponse => {
                                     console.log(credentialResponse);
@@ -27,7 +28,10 @@ const Header = () => {
                                 onError={() => {
                                     console.log('Login Failed');
                                 }}
+                                theme="filled_black"
+                                type="icon"
                             />
+                            </div>
                         ) : (
                             <div className="d-flex align-items-center gap-3">
                                 <span className="text-light">Welcome, {user?.given_name}</span>
