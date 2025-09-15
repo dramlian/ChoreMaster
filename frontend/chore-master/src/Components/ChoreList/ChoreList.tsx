@@ -128,18 +128,21 @@ function ChoreList() {
     };
 
     const formatTimeLeft = (timeLeft: string) => {
-        const isOverdue : boolean = timeLeft.startsWith('-');
-        const match : RegExpMatchArray | null = timeLeft.match(/(\d+)\.(\d+):/);
-        let totalDays : number = match ? parseInt(match[1]) : 0;
-        const totalHours : number = match ? parseInt(match[2]) : 0;
+        const isOverdue = timeLeft.startsWith('-');
 
-        if(!isOverdue && totalDays === 0) {
+        const match = timeLeft.match(/(?:(\d+)\.)?(\d+):/);
+        let totalDays = match && match[1] ? parseInt(match[1]) : 0;
+        const totalHours = match ? parseInt(match[2]) : 0;
+
+
+        if (!isOverdue && totalDays === 0) {
             return `Due Soon (${totalHours}h)`;
         }
 
-        if(totalDays!==0 && totalHours>=12){
+        if (totalDays !== 0 && totalHours >= 12) {
             totalDays += 1;
         }
+
         return isOverdue ? `Overdue (${totalDays}d)` : `${totalDays}d`;
     };
 
