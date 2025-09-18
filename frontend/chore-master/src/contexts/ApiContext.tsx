@@ -21,7 +21,7 @@ interface ApiContextType {
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
-const BASE_URL = 'http://localhost:5272/api';
+const BASE_URL = 'http://localhost:5000/api';
 
 interface ApiProviderProps {
     children: ReactNode;

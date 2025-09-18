@@ -5,7 +5,7 @@ namespace ChoreMaster.Controllers;
 
 [ApiController]
 [Route("api/chores")]
-[Authorize] 
+[Authorize]
 public class ChoreManagementController : ControllerBase
 {
     private readonly IChoreManagementService _choreManagementService;

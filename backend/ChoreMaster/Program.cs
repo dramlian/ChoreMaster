@@ -11,7 +11,7 @@ if (builder.Environment.IsDevelopment())
 
 // Add services to the container
 builder.Services.AddDbContext<ChoreMasterDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")));
 
 builder.Services.AddCors(options =>
 {
@@ -38,11 +38,8 @@ builder.Services.AddScoped<IChoreManagementService, ChoreManagementService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
