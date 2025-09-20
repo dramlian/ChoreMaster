@@ -25,6 +25,16 @@ resource "azurerm_resource_group" "choremaster" {
   }
 }
 
+variable "google_client_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
 # Container App Environment
 resource "azurerm_container_app_environment" "choremaster_env" {
   name                = "choremaster-env"
@@ -48,12 +58,12 @@ resource "azurerm_container_app" "choremaster_app" {
 
       env {
         name  = "GOOGLE_CLIENT_ID"
-        value = ""
+        value = var.google_client_id
       }
 
       env {
         name  = "ConnectionStrings__DefaultConnection"
-        value = ""
+        value = var.db_password
       }
     }
     
