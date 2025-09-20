@@ -21,7 +21,7 @@ interface ApiContextType {
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://choremaster-backend--gl9nk3o.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io/api';
 
 interface ApiProviderProps {
     children: ReactNode;

@@ -81,3 +81,5 @@ dist-ssr
 *.sw?
 
 *.env
+
+*.terraform
