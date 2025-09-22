@@ -52,7 +52,6 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
 
     const handleInputChange = (e: React.ChangeEvent<any>) => {
         const { name, value, type, checked } = e.target;
-        
         let newValue;
         if (type === 'checkbox') {
             newValue = checked;
@@ -158,6 +157,7 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
                                             onChange={handleInputChange}
                                             required
                                         >
+                                            <option value="">Select a user</option>
                                             {users.map((user) => (
                                                 <option key={user.id} value={user.id}>
                                                     {user.username} ({user.email})
