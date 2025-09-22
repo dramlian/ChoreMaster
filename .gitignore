@@ -83,3 +83,12 @@ dist-ssr
 *.env
 
 *.terraform
+
+*.auto.tfvars
+
+*.override.tfvars
+*.tfplan
+*.terraform.lock.hcl
+*.terraform/
+*.tfstate
+*.tfstate.backup
