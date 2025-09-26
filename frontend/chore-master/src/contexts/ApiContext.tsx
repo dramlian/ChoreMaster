@@ -21,7 +21,8 @@ interface ApiContextType {
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
-const BASE_URL = 'https://choremaster-backend--gl9nk3o.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io/api';
+const BASE_URL = 'https://choremaster-backend.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io/api';
+
 
 interface ApiProviderProps {
     children: ReactNode;
@@ -70,7 +71,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const getChoresByUser = async (userId: number): Promise<ChoreResponseDto[]> => {
         const response = await fetch(`${BASE_URL}/chores/all/${userId}`, {
             method: 'GET',
-            headers: getAuthHeaders()
+            headers: getAuthHeaders(),
         });
 
         if (!response.ok) {

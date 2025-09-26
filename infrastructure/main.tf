@@ -35,6 +35,7 @@ variable "db_password" {
   sensitive = true
 }
 
+
 # Container App Environment
 resource "azurerm_container_app_environment" "choremaster_env" {
   name                = "choremaster-env"
@@ -69,7 +70,7 @@ resource "azurerm_container_app" "choremaster_app" {
     
     # Scaling configuration moved inside template block
     min_replicas = 0
-    max_replicas = 2
+    max_replicas = 1
   }
 
   ingress {
@@ -82,7 +83,46 @@ resource "azurerm_container_app" "choremaster_app" {
   }
 }
 
+# Container App for frontend
+resource "azurerm_container_app" "choremaster_frontend" {
+  name                         = "choremaster-frontend"
+  resource_group_name          = azurerm_resource_group.choremaster.name
+  container_app_environment_id = azurerm_container_app_environment.choremaster_env.id
+  revision_mode                = "Single"
+
+  template {
+    container {
+      name   = "choremaster-frontend"
+      image  = "docker.io/dramlian/choremaster-frontend:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+
+      env {
+        name  = "VITE_GOOGLE_CLIENT_ID"
+        value = var.google_client_id
+      }
+    }
+
+    min_replicas = 0
+    max_replicas = 1
+  }
+
+  ingress {
+    external_enabled = true
+    target_port      = 80   # nginx serves on port 80
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
+}
+
 # Output the public URL
 output "choremaster_backend_url" {
   value = "https://${azurerm_container_app.choremaster_app.latest_revision_fqdn}"
+}
+
+# Output the public URL for frontend
+output "choremaster_frontend_url" {
+  value = azurerm_container_app.choremaster_frontend.latest_revision_fqdn
 }

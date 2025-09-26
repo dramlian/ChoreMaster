@@ -17,12 +17,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "https://choremaster-frontend.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        // .AllowCredentials();
     });
 });
+
 
 builder.Services.AddGoogleJwtAuth(builder.Configuration);
 
@@ -38,12 +42,12 @@ builder.Services.AddScoped<IChoreManagementService, ChoreManagementService>();
 
 var app = builder.Build();
 
+app.UseCors("AllowReactApp");
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();
 
