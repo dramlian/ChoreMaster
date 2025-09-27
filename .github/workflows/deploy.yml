@@ -1,0 +1,57 @@
+name: Build and Deploy ChoreMaster
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get short commit hash
+        id: vars
+        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Build and push backend Docker image
+      - name: Build and push backend Docker image
+        run: |
+          docker build -t dramlian/choremaster-backend:latest -f backend/ChoreMaster/Dockerfile backend/ChoreMaster
+          docker push dramlian/choremaster-backend:latest
+
+      # Build and push frontend Docker image
+      - name: Build and push frontend Docker image
+        run: |
+          docker build -t dramlian/choremaster-frontend:latest -f frontend/Dockerfile frontend
+          docker push dramlian/choremaster-frontend:latest
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Update backend container app image
+      - name: Update Azure Container App image (backend)
+        run: |
+          az containerapp update \
+            --name choremaster-backend \
+            --resource-group choremaster \
+            --image dramlian/choremaster-backend:latest
+
+      # Update frontend container app image
+      - name: Update Azure Container App image (frontend)
+        run: |
+          az containerapp update \
+            --name choremaster-frontend \
+            --resource-group choremaster \
+            --image dramlian/choremaster-frontend:latest
