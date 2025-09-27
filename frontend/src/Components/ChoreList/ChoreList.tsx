@@ -179,7 +179,7 @@ function ChoreList() {
             <Row>
                 <Col>
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h2>Chore List</h2>
+                        <h2>Chore List Pipeline Test</h2>
                         <Button variant="success" onClick={handleShowManageModal}>
                             Create Chore
                         </Button>
