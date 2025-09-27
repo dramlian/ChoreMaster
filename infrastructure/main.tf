@@ -25,11 +25,6 @@ resource "azurerm_resource_group" "choremaster" {
   }
 }
 
-variable "google_client_id" {
-  type      = string
-  sensitive = true
-}
-
 variable "db_password" {
   type      = string
   sensitive = true
@@ -56,11 +51,6 @@ resource "azurerm_container_app" "choremaster_app" {
       image  = "docker.io/dramlian/choremaster-backend:latest"
       cpu    = 0.5
       memory = "1Gi"
-
-      env {
-        name  = "GOOGLE_CLIENT_ID"
-        value = var.google_client_id
-      }
 
       env {
         name  = "ConnectionStrings__DefaultConnection"
@@ -96,11 +86,6 @@ resource "azurerm_container_app" "choremaster_frontend" {
       image  = "docker.io/dramlian/choremaster-frontend:latest"
       cpu    = 0.25
       memory = "0.5Gi"
-
-      env {
-        name  = "VITE_GOOGLE_CLIENT_ID"
-        value = var.google_client_id
-      }
     }
 
     min_replicas = 0

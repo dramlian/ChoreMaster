@@ -19,7 +19,7 @@ public static class GoogleAuthConfiguration
                     ValidIssuers = new[] { "https://accounts.google.com", "accounts.google.com" },
                     ValidateAudience = true,
                     ValidAudiences = new[] {
-                       Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
+                       "645864489229-sr19al0i4t5vkj1vsacfbvcnlfebvds6.apps.googleusercontent.com"
                     },
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true
