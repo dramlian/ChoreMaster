@@ -4,10 +4,10 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
-var keyVaultUri = builder.Configuration["KEYVAULT_URI"]
-    ?? throw new InvalidOperationException("KEYVAULT_URI not set");
+// var keyVaultUri = builder.Configuration["KEYVAULT_URI"]
+//     ?? throw new InvalidOperationException("KEYVAULT_URI not set");
 
-var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+var client = new SecretClient(new Uri("https://choremaster-kv-ecd3a326.vault.azure.net/"), new DefaultAzureCredential());
 KeyVaultSecret dbSecret = await client.GetSecretAsync("DbPassword");
 string connectionString = dbSecret.Value;
 
