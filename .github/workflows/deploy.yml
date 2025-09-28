@@ -32,7 +32,10 @@ jobs:
       # Build and push frontend Docker image
       - name: Build and push frontend Docker image
         run: |
-          docker build -t dramlian/choremaster-frontend:latest -f frontend/Dockerfile frontend
+          docker build \
+            --build-arg DEPLOYMENT_VERSION=${{ github.sha }} \
+            -t dramlian/choremaster-frontend:latest \
+            -f frontend/Dockerfile frontend
           docker push dramlian/choremaster-frontend:latest
 
       - name: Azure Login
