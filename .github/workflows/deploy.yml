@@ -46,8 +46,8 @@ jobs:
           az containerapp update \
             --name choremaster-backend \
             --resource-group choremaster \
-            --image dramlian/choremaster-backend:latest\
-            --env-vars deployment_version=${{ github.sha }}
+            --image dramlian/choremaster-backend:latest \
+            --set-env-vars deployment_version=${{ github.sha }}
 
       # Update frontend container app image
       - name: Update Azure Container App image (frontend)
