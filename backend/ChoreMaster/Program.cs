@@ -1,17 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using ChoreMaster.Data;
-using DotNetEnv;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
+var keyVaultUri = builder.Configuration["KEYVAULT_URI"]
+    ?? throw new InvalidOperationException("KEYVAULT_URI not set");
 
-if (builder.Environment.IsDevelopment())
-{
-    Env.Load();
-}
+var client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+KeyVaultSecret dbSecret = await client.GetSecretAsync("DbPassword");
+string connectionString = dbSecret.Value;
 
 // Add services to the container
 builder.Services.AddDbContext<ChoreMasterDbContext>(options =>
-    options.UseNpgsql(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddCors(options =>
 {

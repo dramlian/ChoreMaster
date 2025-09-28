@@ -30,6 +30,52 @@ variable "db_password" {
   sensitive = true
 }
 
+# Random ID for Key Vault
+resource "random_id" "kv_suffix" {
+  byte_length = 4
+}
+
+data "azurerm_client_config" "current" {}
+
+# Key Vault
+resource "azurerm_key_vault" "choremaster_kv" {
+  name                = "choremaster-kv-${random_id.kv_suffix.hex}"
+  location            = azurerm_resource_group.choremaster.location
+  resource_group_name = azurerm_resource_group.choremaster.name
+  sku_name            = "standard"
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+}
+
+# Secret
+resource "azurerm_key_vault_secret" "db_password" {
+  name         = "DbPassword"
+  value        = var.db_password
+  key_vault_id = azurerm_key_vault.choremaster_kv.id
+}
+
+# Managed Identity
+resource "azurerm_user_assigned_identity" "choremaster_identity" {
+  name                = "choremaster-identity"
+  resource_group_name = azurerm_resource_group.choremaster.name
+  location            = azurerm_resource_group.choremaster.location
+}
+
+resource "azurerm_key_vault_access_policy" "terraform_user" {
+  key_vault_id = azurerm_key_vault.choremaster_kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id 
+
+  secret_permissions = ["Get", "List", "Set"]
+}
+
+# Key Vault Access Policy for Identity
+resource "azurerm_key_vault_access_policy" "identity_policy" {
+  key_vault_id = azurerm_key_vault.choremaster_kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_user_assigned_identity.choremaster_identity.principal_id
+
+  secret_permissions = ["Get", "List"]
+}
 
 # Container App Environment
 resource "azurerm_container_app_environment" "choremaster_env" {
@@ -38,12 +84,17 @@ resource "azurerm_container_app_environment" "choremaster_env" {
   resource_group_name = azurerm_resource_group.choremaster.name
 }
 
-# Container App (your backend)
+# Container App (backend)
 resource "azurerm_container_app" "choremaster_app" {
   name                         = "choremaster-backend"
   resource_group_name          = azurerm_resource_group.choremaster.name
   container_app_environment_id = azurerm_container_app_environment.choremaster_env.id
   revision_mode                = "Single"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.choremaster_identity.id]
+  }
 
   template {
     container {
@@ -51,14 +102,8 @@ resource "azurerm_container_app" "choremaster_app" {
       image  = "docker.io/dramlian/choremaster-backend:latest"
       cpu    = 0.5
       memory = "1Gi"
-
-      env {
-        name  = "ConnectionStrings__DefaultConnection"
-        value = var.db_password
-      }
     }
-    
-    # Scaling configuration moved inside template block
+
     min_replicas = 0
     max_replicas = 1
   }
@@ -94,7 +139,7 @@ resource "azurerm_container_app" "choremaster_frontend" {
 
   ingress {
     external_enabled = true
-    target_port      = 80   # nginx serves on port 80
+    target_port      = 80
     traffic_weight {
       percentage      = 100
       latest_revision = true
@@ -102,12 +147,15 @@ resource "azurerm_container_app" "choremaster_frontend" {
   }
 }
 
-# Output the public URL
+# Outputs
 output "choremaster_backend_url" {
   value = "https://${azurerm_container_app.choremaster_app.latest_revision_fqdn}"
 }
 
-# Output the public URL for frontend
 output "choremaster_frontend_url" {
   value = azurerm_container_app.choremaster_frontend.latest_revision_fqdn
+}
+
+output "keyvault_uri" {
+  value = azurerm_key_vault.choremaster_kv.vault_uri
 }
