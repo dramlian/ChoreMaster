@@ -5,13 +5,16 @@ using Azure.Security.KeyVault.Secrets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var clientId = "50f6b7ca-1457-477e-b0a6-f3804985c5fc";
+var clientId = builder.Configuration["ClientId"];
+var keyVaultUri = builder.Configuration["KEYVAULT_URI"];
+var frontendUrl = builder.Configuration["FrontendUrl"];
+
 var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions
 {
     ManagedIdentityClientId = clientId
 });
 
-var client = new SecretClient(new Uri("https://choremaster-kv-ecd3a326.vault.azure.net/"), credential);
+var client = new SecretClient(new Uri(keyVaultUri!), credential);
 KeyVaultSecret dbSecret = await client.GetSecretAsync("DbPassword");
 string connectionString = dbSecret.Value;
 
@@ -23,13 +26,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173",
-                "https://choremaster-frontend.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io"
-            )
+        policy.WithOrigins(frontendUrl!)
             .AllowAnyHeader()
             .AllowAnyMethod();
-        // .AllowCredentials();
     });
 });
 
