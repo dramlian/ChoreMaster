@@ -5,6 +5,7 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import Manage from '../Manage/Manage';
@@ -125,7 +126,7 @@ function ChoreList() {
     }
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString();
+        return format(new Date(dateString), 'dd/MM/yyyy');
     };
 
     const formatTimeLeft = (timeLeft: string) => {
