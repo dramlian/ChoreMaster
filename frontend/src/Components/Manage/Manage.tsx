@@ -6,6 +6,7 @@ import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import { useApi } from '../../contexts/ApiContext';
 import type { ChoreEditDto } from '../../Models/ChoreEditDto';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
 
 interface ManageProps {
     show: boolean;
@@ -17,6 +18,7 @@ interface ManageProps {
 function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
     const { createChore, updateChore, getAllUsers } = useApi();
     const isEditMode = Boolean(editChore); 
+    const [loading, setLoading] = useState<boolean>(false);
     const [choreData, setChoreData] = useState<ChoreDto>({
         name: '',
         threshold: 0,
@@ -69,6 +71,7 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         
         try {
             let result;
@@ -110,83 +113,88 @@ function Manage({ show, onHide, onChoreCreated, editChore }: ManageProps) {
         } catch (error) {
             console.error(`Error ${isEditMode ? 'updating' : 'creating'} chore:`, error);
             alert(`Failed to ${isEditMode ? 'update' : 'create'} chore. Please try again.`);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>{isEditMode ? 'Edit Chore' : 'Create New Chore'}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Container>
-                    <Row>
-                        <Col>
-                            <Form className='mt-3' onSubmit={handleSubmit}>
-                                <Form.Group className="mb-3" controlId="choreName">
-                                    <Form.Label>Chore Name</Form.Label>
-                                    <Form.Control 
-                                        type="text" 
-                                        placeholder="Enter chore name" 
-                                        name="name"
-                                        value={choreData.name}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3" controlId="choreThreshold">
-                                    <Form.Label>Threshold (days)</Form.Label>
-                                    <Form.Control 
-                                        type="number" 
-                                        placeholder="Enter threshold in days"
-                                        name="threshold"
-                                        value={choreData.threshold}
-                                        onChange={handleInputChange}
-                                        min="1"
-                                        required
-                                    />
-                                </Form.Group>
-
-                                {!isEditMode && (
-                                    <Form.Group className="mb-3" controlId="assignedUserId">
-                                        <Form.Label>Assigned User</Form.Label>
-                                        <Form.Select 
-                                            name="assignedToUserID"
-                                            value={choreData.assignedToUserID}
+        <>
+            <LoadingScreen isLoading={loading} />
+            <Modal show={show} onHide={onHide} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>{isEditMode ? 'Edit Chore' : 'Create New Chore'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <Form className='mt-3' onSubmit={handleSubmit}>
+                                    <Form.Group className="mb-3" controlId="choreName">
+                                        <Form.Label>Chore Name</Form.Label>
+                                        <Form.Control 
+                                            type="text" 
+                                            placeholder="Enter chore name" 
+                                            name="name"
+                                            value={choreData.name}
                                             onChange={handleInputChange}
                                             required
-                                        >
-                                            <option value="">Select a user</option>
-                                            {users.map((user) => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.username} ({user.email})
-                                                </option>
-                                            ))}
-                                        </Form.Select>
+                                        />
                                     </Form.Group>
-                                )}
 
-                                <Form.Group className="mb-3" controlId="isReassignedable">
-                                    <Form.Check 
-                                        type="checkbox" 
-                                        label="Is Reassignedable"
-                                        name="isReassignedable"
-                                        checked={choreData.isReassignedable}
-                                        onChange={handleInputChange}
-                                    />
-                                </Form.Group>
+                                    <Form.Group className="mb-3" controlId="choreThreshold">
+                                        <Form.Label>Threshold (days)</Form.Label>
+                                        <Form.Control 
+                                            type="number" 
+                                            placeholder="Enter threshold in days"
+                                            name="threshold"
+                                            value={choreData.threshold}
+                                            onChange={handleInputChange}
+                                            min="1"
+                                            required
+                                        />
+                                    </Form.Group>
 
-                                <Button variant="primary" type="submit">
-                                    {isEditMode ? 'Update Chore' : 'Create Chore'}
-                                </Button>
-                            </Form>
+                                    {!isEditMode && (
+                                        <Form.Group className="mb-3" controlId="assignedUserId">
+                                            <Form.Label>Assigned User</Form.Label>
+                                            <Form.Select 
+                                                name="assignedToUserID"
+                                                value={choreData.assignedToUserID}
+                                                onChange={handleInputChange}
+                                                required
+                                            >
+                                                <option value="">Select a user</option>
+                                                {users.map((user) => (
+                                                    <option key={user.id} value={user.id}>
+                                                        {user.username} ({user.email})
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    )}
 
-                        </Col>
-                    </Row>
-                </Container>
-            </Modal.Body>
-        </Modal>
+                                    <Form.Group className="mb-3" controlId="isReassignedable">
+                                        <Form.Check 
+                                            type="checkbox" 
+                                            label="Is Reassignedable"
+                                            name="isReassignedable"
+                                            checked={choreData.isReassignedable}
+                                            onChange={handleInputChange}
+                                        />
+                                    </Form.Group>
+
+                                    <Button variant="primary" type="submit">
+                                        {isEditMode ? 'Update Chore' : 'Create Chore'}
+                                    </Button>
+                                </Form>
+
+                            </Col>
+                        </Row>
+                    </Container>
+                </Modal.Body>
+            </Modal>
+        </>
     )
 }
 

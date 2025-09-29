@@ -12,6 +12,7 @@ import Complete from '../Complete/Complete';
 import Delete from '../Delete/Delete';
 import { useApi } from '../../contexts/ApiContext';
 import History from '../History/History';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
 
 function ChoreList() {
     const { getAllChores, getChoresByUser, getAllUsers } = useApi();
@@ -150,18 +151,6 @@ function ChoreList() {
         return window.innerWidth > 768; // Example breakpoint for mobile devices
     }
 
-    if (loading) {
-        return (
-            <Container className="mt-4">
-                <Row>
-                    <Col>
-                        <p>Loading chores...</p>
-                    </Col>
-                </Row>
-            </Container>
-        );
-    }
-
     if (error) {
         return (
             <Container className="mt-4">
@@ -175,7 +164,9 @@ function ChoreList() {
     }
 
     return (
-        <Container className="mt-4">
+        <>
+            <LoadingScreen isLoading={loading} />
+            <Container className="mt-4">
             <Row>
                 <Col>
                     <div className="d-flex justify-content-between align-items-center mb-3">
@@ -290,7 +281,8 @@ function ChoreList() {
             />
 
             <History showHistoryModal={showHistoryModal} setShowHistoryModal={setShowHistoryModal} choreId={choreHistoryId} />
-        </Container>
+            </Container>
+        </>
     )
 }
 
