@@ -4,6 +4,7 @@ import type { ChoreResponseDto } from '../../Models/ChoreResponseDto';
 import type { User } from '../../Models/User';
 import type { CompleteChoreDto } from '../../Models/CompleteChoreDto';
 import { useApi } from '../../contexts/ApiContext';
+import LoadingScreen from '../LoadingScreen/LoadingScreen';
 
 interface CompleteProps {
     show: boolean;
@@ -14,6 +15,7 @@ interface CompleteProps {
 
 function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
     const { getAllUsers, completeChore } = useApi();
+    const [loading, setLoading] = useState<boolean>(false);
     const [users, setUsers] = useState<User[]>([]);
     const [completeData, setCompleteData] = useState<CompleteChoreDto>({
         choreId: chore?.id || 0,
@@ -57,6 +59,7 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         
         try {
             console.log('Complete Payload:', JSON.stringify(completeData, null, 2));
@@ -72,6 +75,8 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
         } catch (error) {
             console.error('Error completing chore:', error);
             alert('Failed to complete chore. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -82,73 +87,76 @@ function Complete({ show, onHide, chore, onCompleted }: CompleteProps) {
     }
 
     return (
-        <Modal show={show} onHide={onHide} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Complete Chore</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Container>
-                    <Row>
-                        <Col>
-                            <Alert variant="info">
-                                <strong>Completing Chore:</strong> {chore.name}
-                            </Alert>
-                            
-                            <Form className='mt-3' onSubmit={handleSubmit}>
-                                <Form.Group className="mb-3" controlId="fromUserId">
-                                    <Form.Label>From User (Current Assignee)</Form.Label>
-                                    <Form.Control 
-                                        type="text" 
-                                        value={currentUser ? `${currentUser.username} (${currentUser.email})` : 'Unknown User'}
-                                        disabled
-                                    />
-                                    <Form.Text className="text-muted">
-                                        This is the user currently assigned to the chore.
-                                    </Form.Text>
-                                </Form.Group>
-
-                                {chore.isReassignedable && (
-                                    <Form.Group className="mb-3" controlId="toUserId">
-                                        <Form.Label>Reassign To (Optional)</Form.Label>
-                                        <Form.Select 
-                                            name="toUserId"
-                                            value={completeData.toUserId || ''}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">Keep current assignment</option>
-                                            {users
-                                                .filter(user => user.id !== chore.assignedTo.id) // Don't show current assignee
-                                                .map((user) => (
-                                                    <option key={user.id} value={user.id}>
-                                                        {user.username} ({user.email})
-                                                    </option>
-                                                ))
-                                            }
-                                        </Form.Select>
+        <>
+            <LoadingScreen isLoading={loading} />
+            <Modal show={show} onHide={onHide} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Complete Chore</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <Alert variant="info">
+                                    <strong>Completing Chore:</strong> {chore.name}
+                                </Alert>
+                                
+                                <Form className='mt-3' onSubmit={handleSubmit}>
+                                    <Form.Group className="mb-3" controlId="fromUserId">
+                                        <Form.Label>From User (Current Assignee)</Form.Label>
+                                        <Form.Control 
+                                            type="text" 
+                                            value={currentUser ? `${currentUser.username} (${currentUser.email})` : 'Unknown User'}
+                                            disabled
+                                        />
                                         <Form.Text className="text-muted">
-                                            Optionally reassign this chore to another user after completion.
+                                            This is the user currently assigned to the chore.
                                         </Form.Text>
                                     </Form.Group>
-                                )}
 
-                                {!chore.isReassignedable && (
-                                    <Alert variant="warning">
-                                        This chore cannot be reassigned to another user.
-                                    </Alert>
-                                )}
+                                    {chore.isReassignedable && (
+                                        <Form.Group className="mb-3" controlId="toUserId">
+                                            <Form.Label>Reassign To (Optional)</Form.Label>
+                                            <Form.Select 
+                                                name="toUserId"
+                                                value={completeData.toUserId || ''}
+                                                onChange={handleInputChange}
+                                            >
+                                                <option value="">Keep current assignment</option>
+                                                {users
+                                                    .filter(user => user.id !== chore.assignedTo.id) // Don't show current assignee
+                                                    .map((user) => (
+                                                        <option key={user.id} value={user.id}>
+                                                            {user.username} ({user.email})
+                                                        </option>
+                                                    ))
+                                                }
+                                            </Form.Select>
+                                            <Form.Text className="text-muted">
+                                                Optionally reassign this chore to another user after completion.
+                                            </Form.Text>
+                                        </Form.Group>
+                                    )}
 
-                                <Button 
-                                    variant="success" 
-                                    type="submit" 
-                                >
-                                    Complete Chore
-                                </Button>
-                            </Form>
-                        </Col>
-                    </Row>
-                </Container>
-            </Modal.Body>
-        </Modal>
+                                    {!chore.isReassignedable && (
+                                        <Alert variant="warning">
+                                            This chore cannot be reassigned to another user.
+                                        </Alert>
+                                    )}
+
+                                    <Button 
+                                        variant="success" 
+                                        type="submit" 
+                                    >
+                                        Complete Chore
+                                    </Button>
+                                </Form>
+                            </Col>
+                        </Row>
+                    </Container>
+                </Modal.Body>
+            </Modal>
+        </>
     );
 }
 
