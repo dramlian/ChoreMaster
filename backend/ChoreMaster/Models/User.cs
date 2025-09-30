@@ -27,6 +27,12 @@ public class User
 
 public class UserDto
 {
-    public required string Username { get; set; }
-    public required string Email { get; set; }
+    public string Username { get; set; }
+    public string Email { get; set; }
+
+    public UserDto(string userName, string email)
+    {
+        Username = userName;
+        Email = email;
+    }
 }

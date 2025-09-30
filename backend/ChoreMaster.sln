@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChoreMaster", "ChoreMaster\ChoreMaster.csproj", "{B4E2F2AA-289C-4CFF-A24A-BE5B636EFE66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChoreMaster.Tests", "ChoreMaster.Tests\ChoreMaster.Tests.csproj", "{45922D5E-0E60-4FDD-8955-664BC9ECA9EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{B4E2F2AA-289C-4CFF-A24A-BE5B636EFE66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4E2F2AA-289C-4CFF-A24A-BE5B636EFE66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4E2F2AA-289C-4CFF-A24A-BE5B636EFE66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45922D5E-0E60-4FDD-8955-664BC9ECA9EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45922D5E-0E60-4FDD-8955-664BC9ECA9EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45922D5E-0E60-4FDD-8955-664BC9ECA9EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45922D5E-0E60-4FDD-8955-664BC9ECA9EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
