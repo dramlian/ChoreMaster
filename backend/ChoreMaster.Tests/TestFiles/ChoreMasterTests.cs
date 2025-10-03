@@ -1,14 +1,14 @@
 ﻿namespace ChoreMaster.Tests;
 
 
-public class ChoreManagerServiceTests : IClassFixture<TestSetupFixture>
+public class ChoreMasterTests : IClassFixture<TestSetupFixture>
 {
 
     private readonly IChoreManagementService _choreManagementService;
 
     private readonly IUserManagementService _userManagerService;
 
-    public ChoreManagerServiceTests(TestSetupFixture fixture)
+    public ChoreMasterTests(TestSetupFixture fixture)
     {
         _choreManagementService = fixture.GetChoreManagementService() ?? throw new Exception("No ChoreManagementService was setup in the fixture");
         _userManagerService = fixture.GetUserManagementService() ?? throw new Exception("No UserManagementService was setup in the fixture");
@@ -26,7 +26,6 @@ public class ChoreManagerServiceTests : IClassFixture<TestSetupFixture>
     }
 
     [Fact]
-
     public async Task CreateDeleteChore()
     {
         var user = await _userManagerService.CreateUserAsync(CreateSampleUserDto());
@@ -38,10 +37,7 @@ public class ChoreManagerServiceTests : IClassFixture<TestSetupFixture>
         Assert.NotNull(chore);
         Assert.NotEqual(chore?.Id, 0);
         Assert.NotEmpty(await _choreManagementService.GetAllChoresAsync());
-
     }
-
-
 
     private ChoreDto CreateSampleChoreDto(User user)
     {
