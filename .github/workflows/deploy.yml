@@ -6,8 +6,34 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore backend/ChoreMaster.sln
+
+      - name: Build
+        run: dotnet build backend/ChoreMaster.sln --no-restore
+
+      - name: Run tests
+        run: dotnet test backend/ChoreMaster.Tests/ChoreMaster.Tests.csproj --no-build --verbosity normal
+
   build-and-deploy:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
