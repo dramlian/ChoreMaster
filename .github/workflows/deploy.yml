@@ -60,6 +60,7 @@ jobs:
         run: |
           docker build \
             --build-arg DEPLOYMENT_VERSION=${{ github.sha }} \
+            --build-arg VITE_API_BASE_URL=${{ secrets.PRODUCTION_API_URL }} \
             -t dramlian/choremaster-frontend:latest \
             -f frontend/Dockerfile frontend
           docker push dramlian/choremaster-frontend:latest

@@ -7,6 +7,7 @@ import type { CompleteChoreDto } from '../Models/CompleteChoreDto';
 import type { ChoreHistoryDto } from '../Models/ChoreHistoryDto';
 import type { User } from '../Models/User';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 interface ApiContextType {
     getAllChores: () => Promise<ChoreResponseDto[]>;
@@ -20,9 +21,6 @@ interface ApiContextType {
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
-
-const BASE_URL = 'https://choremaster-backend.wonderfulpond-00f239f0.westeurope.azurecontainerapps.io/api';
-
 
 interface ApiProviderProps {
     children: ReactNode;
@@ -56,7 +54,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const getAllChores = async (): Promise<ChoreResponseDto[]> => {
-        const response = await fetch(`${BASE_URL}/chores/all`, {
+        const response = await fetch(`${API_BASE_URL}/chores/all`, {
             method: 'GET',
             headers: getAuthHeaders()
         });
@@ -69,7 +67,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const getChoresByUser = async (userId: number): Promise<ChoreResponseDto[]> => {
-        const response = await fetch(`${BASE_URL}/chores/all/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/chores/all/${userId}`, {
             method: 'GET',
             headers: getAuthHeaders(),
         });
@@ -82,7 +80,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const createChore = async (chore: ChoreDto): Promise<any> => {
-        const response = await fetch(`${BASE_URL}/chores/create`, {
+        const response = await fetch(`${API_BASE_URL}/chores/create`, {
             method: 'POST',
             headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(chore)
@@ -96,7 +94,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const updateChore = async (choreId: number, chore: ChoreEditDto): Promise<any> => {
-        const response = await fetch(`${BASE_URL}/chores/update/${choreId}`, {
+        const response = await fetch(`${API_BASE_URL}/chores/update/${choreId}`, {
             method: 'PUT',
             headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(chore)
@@ -118,7 +116,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`${BASE_URL}/chores/${choreId}`, {
+        const response = await fetch(`${API_BASE_URL}/chores/${choreId}`, {
             method: 'DELETE',
             headers
         });
@@ -127,7 +125,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const getAllUsers = async (): Promise<User[]> => {
-        const response = await fetch(`${BASE_URL}/users/all`, {
+        const response = await fetch(`${API_BASE_URL}/users/all`, {
             method: 'GET',
             headers: getAuthHeaders()
         });
@@ -140,7 +138,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const completeChore = async (request: CompleteChoreDto): Promise<any> => {
-        const response = await fetch(`${BASE_URL}/chores/complete`, {
+        const response = await fetch(`${API_BASE_URL}/chores/complete`, {
             method: 'PUT',
             headers: getAuthHeadersWithContentType(),
             body: JSON.stringify(request)
@@ -154,7 +152,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     };
 
     const getChoreHistory = async (choreId: number): Promise<ChoreHistoryDto[]> => {
-        const response = await fetch(`${BASE_URL}/chores/${choreId}/history`, {
+        const response = await fetch(`${API_BASE_URL}/chores/${choreId}/history`, {
             method: 'GET',
             headers: getAuthHeaders()
         });

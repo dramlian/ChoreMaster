@@ -89,10 +89,14 @@ Transform your chaotic chore routine into an organized experience!
    npm install
    ```
 
-2. **Configure backend URL:**
-   Update the backend URL in your configuration file to point to your local backend instance instead of the production URL.
+2. **Start the development server:**
 
-3. **Start the development server:**
    ```bash
    npm run dev
+   ```
+
+   The app automatically uses `http://localhost:5272/api` for the backend in development.
+
+   ```
+
    ```
