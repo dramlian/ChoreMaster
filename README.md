@@ -96,7 +96,3 @@ Transform your chaotic chore routine into an organized experience!
    ```
 
    The app automatically uses `http://localhost:5272/api` for the backend in development.
-
-   ```
-
-   ```
