@@ -96,3 +96,68 @@ Transform your chaotic chore routine into an organized experience!
    ```
 
    The app automatically uses `http://localhost:5272/api` for the backend in development.
+
+---
+
+## 🌐 Production Deployment
+
+### Prerequisites
+
+- Azure CLI installed and configured
+- Terraform installed
+- Docker Hub account
+- Azure subscription
+
+### GitHub Secrets Configuration
+
+Before deploying to production, configure the following secrets in your GitHub repository (Settings → Secrets and variables → Actions):
+
+| Secret Name          | Description                                               |
+| -------------------- | --------------------------------------------------------- |
+| `DOCKERHUB_USERNAME` | Your Docker Hub username                                  |
+| `DOCKERHUB_TOKEN`    | Your Docker Hub access token                              |
+| `AZURE_CREDENTIALS`  | Azure service principal credentials (JSON format)         |
+| `PRODUCTION_API_URL` | Your production API URL (e.g., `https://api.yourapp.com`) |
+
+### Deployment Steps
+
+1. **Login to Azure:**
+
+   ```bash
+   az login
+   ```
+
+2. **Navigate to the infrastructure directory:**
+
+   ```bash
+   cd infrastructure
+   ```
+
+3. **Initialize Terraform:**
+
+   ```bash
+   terraform init
+   ```
+
+4. **Review the deployment plan:**
+
+   ```bash
+   terraform plan
+   ```
+
+5. **Apply the infrastructure:**
+
+   ```bash
+   terraform apply
+   ```
+
+6. **Push to main branch:**
+
+   Once the infrastructure is set up, pushing to the `main` branch will trigger the CI/CD pipeline that:
+
+   - Runs backend tests
+   - Builds Docker images for frontend and backend
+   - Pushes images to Docker Hub
+   - Updates Azure Container Apps with the new images
+
+---
