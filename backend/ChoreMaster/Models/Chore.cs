@@ -35,6 +35,8 @@ public class ChoreDto : ChoreUpdateDto
 {
     public int? AssignedToUserID { get; set; }
 
+    public ChoreDto() { }
+
     public ChoreDto(Chore chore)
     {
         AssignedToUserID = chore?.AssignedTo?.Id;
